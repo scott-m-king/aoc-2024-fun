@@ -1,0 +1,1 @@
+let () = Solutions.Day1.get_solution ()
