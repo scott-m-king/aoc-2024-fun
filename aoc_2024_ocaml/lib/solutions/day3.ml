@@ -17,7 +17,7 @@ let get_by_regex pattern input action =
 let find_last_occurrences lst =
   let rec aux curr = function
     | [] -> []
-    | (idx, action) :: rest when curr = "start" || action <> curr -> idx :: aux action rest
+    | (idx, action) :: rest when curr = "*" || action <> curr -> idx :: aux action rest
     | _ :: rest -> aux curr rest
   in
   aux "*" lst
