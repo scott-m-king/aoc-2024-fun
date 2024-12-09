@@ -2,10 +2,14 @@ let parse_input str =
   str |> String.split_on_char '\n'
   |> List.map (fun x ->
          x |> String.split_on_char ' '
-         |> List.filter_map (fun y -> try Some (int_of_string y) with Failure _ -> None))
+         |> List.filter_map (fun y ->
+                try Some (int_of_string y) with
+                | Failure _ -> None))
 
 let rec is_sorted cmp = function
-  | [] | [ _ ] -> true
+  | []
+  | [ _ ] ->
+    true
   | x :: y :: xs -> cmp x y && is_sorted cmp (y :: xs)
 
 let is_safe list =

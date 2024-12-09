@@ -3,7 +3,9 @@ let parse_input str =
   |> List.filter_map (fun line ->
          let nums =
            String.split_on_char ' ' line
-           |> List.filter_map (fun s -> try Some (int_of_string s) with _ -> None)
+           |> List.filter_map (fun s ->
+                  try Some (int_of_string s) with
+                  | _ -> None)
          in
          match nums with first :: second :: _ -> Some (first, second) | _ -> None)
   |> List.split
