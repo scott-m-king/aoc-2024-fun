@@ -12,6 +12,8 @@ let parse_input str =
          | _ -> None)
   |> List.split
 
+let count target list = list |> List.filter (fun x -> x = target) |> List.length
+
 let part1 =
   let left, right = Utils.read_file "data/day1.txt" |> parse_input in
 
@@ -20,8 +22,6 @@ let part1 =
   List.combine left_sorted _right_sorted
   |> List.map (fun (x, y) -> abs (x - y))
   |> List.fold_left ( + ) 0
-
-let count target list = list |> List.filter (fun x -> x = target) |> List.length
 
 let part2 =
   let left, right = Utils.read_file "data/day1.txt" |> parse_input in

@@ -11,8 +11,6 @@ let parse_input str =
          let r = Group.get groups 2 |> int_of_string in
          (l, r))
 
-let part1 input = parse_input input |> List.fold_left (fun acc (l, r) -> acc + (l * r)) 0
-
 let get_by_regex pattern input action =
   all pattern input |> List.map (fun groups -> (Group.start groups 0, action))
 
@@ -27,6 +25,8 @@ let find_last_occurrences lst =
 let rec every_other = function
   | ([] | [ _ ]) as l -> l
   | x :: _ :: rest -> x :: every_other rest
+
+let part1 input = parse_input input |> List.fold_left (fun acc (l, r) -> acc + (l * r)) 0
 
 let part2 input =
   let positions =
