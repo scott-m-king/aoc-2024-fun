@@ -14,13 +14,22 @@ let print_list lst =
   "[" ^ (List.map string_of_int lst |> String.concat "; ") ^ "]"
   |> print_endline
 
-let print_pairs lst =
+let print_str_list lst = List.iter (Printf.printf "%s\n") lst
+
+let print_int_pairs lst =
   Format.printf "[%a]@."
     (Format.pp_print_list
        ~pp_sep:(fun fmt () -> Format.fprintf fmt "; ")
        (fun fmt (x, y) -> Format.fprintf fmt "(%d, %d)" x y))
     lst
 
+let print_str_pairs lst =
+  Format.printf "[%a]@."
+    (Format.pp_print_list
+       ~pp_sep:(fun fmt () -> Format.fprintf fmt "; ")
+       (fun fmt (x, y) -> Format.fprintf fmt "(%s, %s)" x y))
+    lst
+    
 let rec take n = function
   | first :: rest when n > 0 -> first :: take (n - 1) rest
   | _ -> []
