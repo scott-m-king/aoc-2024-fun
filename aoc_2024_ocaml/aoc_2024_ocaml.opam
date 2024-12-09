@@ -10,8 +10,9 @@ homepage: "https://github.com/username/reponame"
 doc: "https://url/to/documentation"
 bug-reports: "https://github.com/username/reponame/issues"
 depends: [
-  "dune" {>= "3.17"}
   "ocaml"
+  "utop"
+  "dune" {>= "3.17"}
   "odoc" {with-doc}
 ]
 build: [

@@ -20,3 +20,15 @@ let print_pairs lst =
        ~pp_sep:(fun fmt () -> Format.fprintf fmt "; ")
        (fun fmt (x, y) -> Format.fprintf fmt "(%d, %d)" x y))
     lst
+
+let rec take n = function
+  | first :: rest when n > 0 -> first :: take (n - 1) rest
+  | _ -> []
+
+let windows n list =
+  let rec aux acc = function
+    | [] -> List.rev acc
+    | lst when List.length lst < n -> List.rev acc
+    | first :: rest -> aux (take n (first :: rest) :: acc) rest
+  in
+  aux [] list
