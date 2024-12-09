@@ -7,7 +7,9 @@ let parse_input str =
                   try Some (int_of_string s) with
                   | _ -> None)
          in
-         match nums with first :: second :: _ -> Some (first, second) | _ -> None)
+         match nums with
+         | first :: second :: _ -> Some (first, second)
+         | _ -> None)
   |> List.split
 
 let part1 =

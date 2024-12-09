@@ -24,7 +24,9 @@ let find_last_occurrences lst =
   in
   aux "*" lst
 
-let rec every_other = function ([] | [ _ ]) as l -> l | x :: _ :: rest -> x :: every_other rest
+let rec every_other = function
+  | ([] | [ _ ]) as l -> l
+  | x :: _ :: rest -> x :: every_other rest
 
 let part2 input =
   let positions =
