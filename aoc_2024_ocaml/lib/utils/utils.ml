@@ -16,6 +16,19 @@ let print_list lst =
 
 let print_str_list lst = List.iter (Printf.printf "%s\n") lst
 
+let print_tuple_list lst =
+  lst |> List.iter (fun (x, y) -> Printf.printf "(%d, %s)\n" x y)
+
+let print_int_list_list lst =
+  Printf.printf "[\n";
+  List.iter
+    (fun inner_list ->
+      Printf.printf "  [";
+      List.iter (fun x -> Printf.printf "%d; " x) inner_list;
+      Printf.printf "]\n")
+    lst;
+  Printf.printf "]\n"
+
 let print_int_pairs lst =
   Format.printf "[%a]@."
     (Format.pp_print_list
@@ -29,7 +42,7 @@ let print_str_pairs lst =
        ~pp_sep:(fun fmt () -> Format.fprintf fmt "; ")
        (fun fmt (x, y) -> Format.fprintf fmt "(%s, %s)" x y))
     lst
-    
+
 let rec take n = function
   | first :: rest when n > 0 -> first :: take (n - 1) rest
   | _ -> []
