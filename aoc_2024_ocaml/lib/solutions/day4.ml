@@ -52,9 +52,8 @@ let get_corners grid x y =
   |> List.filter_map (fun dir -> get_cell grid x y dir)
   |> List.filter (fun x -> x.l = 'M' || x.l = 'S')
 
-let found_match grid x y =
-  let corners = get_corners grid x y in
-  match corners with
+let found_match_to_int grid x y =
+  match get_corners grid x y with
   | [ nw; sw; ne; se ] when nw.l <> se.l && ne.l <> sw.l -> 1
   | _ -> 0
 
@@ -64,7 +63,7 @@ let part2 input =
   |> List.fold_left
        (fun acc (x, y) ->
          match grid.(x).(y) with
-         | 'A' -> acc + found_match grid x y
+         | 'A' -> acc + found_match_to_int grid x y
          | _ -> acc)
        0
 
