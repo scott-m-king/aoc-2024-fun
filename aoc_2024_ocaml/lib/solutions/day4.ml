@@ -1,6 +1,6 @@
 type cell = { letter : char; x : int; y : int }
 
-let make_indices arr = arr |> Array.mapi (fun x _ -> x)
+let make_indices w h = List.init h (fun y -> List.init w (fun x -> (x, y))) |> List.flatten
 
 let parse_input input =
   input |> String.split_on_char '\n'
@@ -31,23 +31,17 @@ and find_next grid next_letter cell direction =
 let part1 input =
   let grid = parse_input input in
 
-  Array.fold_left
-    (fun grid_acc i ->
-      let row_total =
-        Array.fold_left
-          (fun row_acc j ->
-            match grid.(i).(j) with
-            | 'X' ->
-              row_acc
-              + ([ (0, 1); (0, -1); (1, 0); (-1, 0); (1, 1); (-1, -1); (1, -1); (-1, 1) ]
-                |> List.map (fun x -> find_xmas grid { letter = 'X'; x = i; y = j } x)
-                |> List.fold_left ( + ) 0)
-            | _ -> row_acc)
-          0
-          (make_indices grid.(i))
-      in
-      grid_acc + row_total)
-    0 (make_indices grid)
+  make_indices (Array.length grid) (Array.length grid.(0))
+  |> List.fold_left
+       (fun acc (x, y) ->
+         match grid.(x).(y) with
+         | 'X' ->
+           acc
+           + ([ (0, 1); (0, -1); (1, 0); (-1, 0); (1, 1); (-1, -1); (1, -1); (-1, 1) ]
+             |> List.map (fun dir -> find_xmas grid { letter = 'X'; x; y } dir)
+             |> List.fold_left ( + ) 0)
+         | _ -> acc)
+       0
 
 let part2 _input = 0
 let get_solution () = part1 (Utils.read_file "data/day-4.txt") |> print_int
