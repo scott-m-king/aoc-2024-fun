@@ -1,8 +1,5 @@
 type cell = { letter : char; x : int; y : int }
 
-let print_cell cell = Printf.printf "letter: %c, x: %d y: %d\n" cell.letter cell.x cell.y
-let print_adjacent_list lst = List.iter (fun cell -> print_cell cell) lst
-
 let parse_input input =
   input |> String.split_on_char '\n'
   |> List.map (fun str -> String.to_seq str |> Array.of_seq)
