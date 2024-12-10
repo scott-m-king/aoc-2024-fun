@@ -1,5 +1,7 @@
 type cell = { letter : char; x : int; y : int }
 
+let make_indices arr = arr |> Array.mapi (fun x _ -> x)
+
 let parse_input input =
   input |> String.split_on_char '\n'
   |> List.map (fun str -> String.to_seq str |> Array.of_seq)
@@ -31,23 +33,23 @@ let get_directions = [ (0, 1); (0, -1); (1, 0); (-1, 0); (1, 1); (-1, -1); (1, -
 let part1 input =
   let grid = parse_input input in
 
-  let counter = ref 0 in
-
-  Array.iteri
-    (fun i row ->
-      Array.iteri
-        (fun j cell ->
-          if cell = 'X' then
-            let found =
-              get_directions
-              |> List.map (fun x -> find_xmas grid { letter = cell; x = i; y = j } x)
-              |> List.fold_left ( + ) 0
-            in
-            counter := !counter + found)
-        row)
-    grid;
-
-  !counter
+  Array.fold_left
+    (fun acc i ->
+      let row_total =
+        Array.fold_left
+          (fun acc2 j ->
+            match grid.(i).(j) with
+            | 'X' ->
+              acc2
+              + (get_directions
+                |> List.map (fun x -> find_xmas grid { letter = 'X'; x = i; y = j } x)
+                |> List.fold_left ( + ) 0)
+            | _ -> acc2)
+          0
+          (make_indices grid.(i))
+      in
+      acc + row_total)
+    0 (make_indices grid)
 
 let part2 _input = 0
 let get_solution () = part1 (Utils.read_file "data/day-4.txt") |> print_int
