@@ -31,23 +31,23 @@ and find_next grid next_letter cell direction =
 let part1 input =
   let grid = parse_input input in
 
-  let counter = ref 0 in
-
-  Array.iteri
-    (fun i row ->
-      Array.iteri
-        (fun j cell ->
-          if cell = 'X' then
-            let found =
-              [ (0, 1); (0, -1); (1, 0); (-1, 0); (1, 1); (-1, -1); (1, -1); (-1, 1) ]
-              |> List.map (fun x -> find_xmas grid { letter = cell; x = i; y = j } x)
-              |> List.fold_left ( + ) 0
-            in
-            counter := !counter + found)
-        row)
-    grid;
-
-  !counter
+  Array.fold_left
+    (fun grid_acc i ->
+      let row_total =
+        Array.fold_left
+          (fun row_acc j ->
+            match grid.(i).(j) with
+            | 'X' ->
+              row_acc
+              + ([ (0, 1); (0, -1); (1, 0); (-1, 0); (1, 1); (-1, -1); (1, -1); (-1, 1) ]
+                |> List.map (fun x -> find_xmas grid { letter = 'X'; x = i; y = j } x)
+                |> List.fold_left ( + ) 0)
+            | _ -> row_acc)
+          0
+          (make_indices grid.(i))
+      in
+      grid_acc + row_total)
+    0 (make_indices grid)
 
 let part2 _input = 0
 let get_solution () = part1 (Utils.read_file "data/day-4.txt") |> print_int
