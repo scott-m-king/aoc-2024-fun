@@ -1,6 +1,5 @@
 type cell = { letter : char; x : int; y : int }
 
-let directions = [ (0, 1); (0, -1); (1, 0); (-1, 0); (1, 1); (-1, -1); (1, -1); (-1, 1) ]
 let make_indices arr = arr |> Array.mapi (fun x _ -> x)
 
 let parse_input input =
@@ -40,7 +39,7 @@ let part1 input =
         (fun j cell ->
           if cell = 'X' then
             let found =
-              directions
+              [ (0, 1); (0, -1); (1, 0); (-1, 0); (1, 1); (-1, -1); (1, -1); (-1, 1) ]
               |> List.map (fun x -> find_xmas grid { letter = cell; x = i; y = j } x)
               |> List.fold_left ( + ) 0
             in
