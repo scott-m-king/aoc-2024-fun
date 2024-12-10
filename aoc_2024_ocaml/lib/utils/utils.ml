@@ -5,19 +5,27 @@ let read_file filename =
   s
 
 let print_pair_lists (lst1, lst2) =
-  let list_to_string lst =
-    "[" ^ (List.map string_of_int lst |> String.concat "; ") ^ "]"
-  in
+  let list_to_string lst = "[" ^ (List.map string_of_int lst |> String.concat "; ") ^ "]" in
   Printf.printf "(%s, %s)\n" (list_to_string lst1) (list_to_string lst2)
 
-let print_list lst =
-  "[" ^ (List.map string_of_int lst |> String.concat "; ") ^ "]"
-  |> print_endline
-
+let print_list lst = "[" ^ (List.map string_of_int lst |> String.concat "; ") ^ "]" |> print_endline
 let print_str_list lst = List.iter (Printf.printf "%s\n") lst
+let print_tuple_list lst = 
+  Format.printf "@[<h>[";
+  lst |> List.iter (fun (x, y) -> Format.printf "(%d,%d);@ " x y);
+  Format.printf "]@]@\n"
 
-let print_tuple_list lst =
-  lst |> List.iter (fun (x, y) -> Printf.printf "(%d, %s)\n" x y)
+(* More sophisticated approach with Format module for better spacing *)
+let print_tuple_lists_formatted lists =
+  Format.printf "@[<v 2>[@ ";
+  (* Vertical box with indent of 2 *)
+  lists
+  |> List.iter (fun inner_list ->
+         Format.printf "@[<h>[";
+         (* Horizontal box *)
+         inner_list |> List.iter (fun (x, y) -> Format.printf "(%d,%d);@ " x y);
+         Format.printf "]@]@ " (* Close horizontal box *));
+  Format.printf "]@]@." (* Close vertical box and flush *)
 
 let print_int_list_list lst =
   Printf.printf "[\n";
@@ -41,6 +49,14 @@ let print_str_pairs lst =
     (Format.pp_print_list
        ~pp_sep:(fun fmt () -> Format.fprintf fmt "; ")
        (fun fmt (x, y) -> Format.fprintf fmt "(%s, %s)" x y))
+    lst
+
+let print_char_grid lst =
+  print_char '\n';
+  List.iter
+    (fun inner_list ->
+      List.iter (fun c -> Printf.printf "%c " c) inner_list;
+      Printf.printf "\n")
     lst
 
 let rec take n = function
