@@ -7,13 +7,11 @@ let parse_input input =
   |> List.map (fun str -> String.to_seq str |> Array.of_seq)
   |> Array.of_list
 
-let get_cell grid row col direction =
-  match direction with
-  | i, j -> (
-    let x = row + i in
-    let y = col + j in
-    try Some { letter = grid.(x).(y); x; y } with
-    | Invalid_argument _ -> None)
+let get_cell grid row col (i, j) =
+  let x = row + i in
+  let y = col + j in
+  try Some { letter = grid.(x).(y); x; y } with
+  | Invalid_argument _ -> None
 
 let rec find_xmas grid cell direction =
   match cell.letter with
