@@ -55,7 +55,7 @@ let sort_by_ordering lst ordering =
 let part1 input =
   let ordering, all_updates = parse_input input in
   all_updates
-  |> List.filter (fun lst -> is_valid_ordering lst ordering)
+  |> List.filter (fun updates -> is_valid_ordering updates ordering)
   |> List.fold_left (fun acc updates -> acc + List.nth updates (List.length updates / 2)) 0
 
 let part2 input =
@@ -63,6 +63,6 @@ let part2 input =
   all_updates
   |> List.filter (fun updates -> not (is_valid_ordering updates ordering))
   |> List.map (fun updates -> sort_by_ordering updates ordering)
-  |> List.fold_left (fun acc lst -> acc + List.nth lst (List.length lst / 2)) 0
+  |> List.fold_left (fun acc updates -> acc + List.nth updates (List.length updates / 2)) 0
 
 let get_solution () = part2 (Utils.read_file "data/day-5.txt") |> print_int

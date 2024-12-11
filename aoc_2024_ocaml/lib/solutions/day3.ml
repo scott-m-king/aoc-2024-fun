@@ -22,22 +22,19 @@ let find_last_occurrences lst =
   in
   aux "*" lst
 
+let append_last_position pos lst = lst @ [ pos ]
+
 let rec every_other = function
-  | ([] | [ _ ]) as l -> l
   | x :: _ :: rest -> x :: every_other rest
+  | _ as l -> l
 
 let part1 input = parse_input input |> List.fold_left (fun acc (l, r) -> acc + (l * r)) 0
 
 let part2 input =
-  let positions =
-    get_by_regex a_pattern input "a" @ [ (0, "a") ] @ get_by_regex d_pattern input "d"
-  in
-
-  positions
+  get_by_regex a_pattern input "a" @ [ (0, "a") ] @ get_by_regex d_pattern input "d"
   |> List.sort (fun (a, _) (b, _) -> a - b)
   |> find_last_occurrences
-  |> fun lst ->
-  lst @ [ String.length input ]
+  |> append_last_position (String.length input)
   |> Utils.windows 2 |> every_other
   |> List.map (fun w ->
          let start = List.hd w in

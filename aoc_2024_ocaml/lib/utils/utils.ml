@@ -96,6 +96,14 @@ let print_order_dict dict =
       Printf.printf "\n\n")
     dict
 
+type cell = { l : char; x : int; y : int }
+
+let print_cell_list_vertical cells =
+  print_endline "Corners:";
+  List.iteri
+    (fun i cell -> Printf.printf "  %d: { letter: '%c'; x: %d; y: %d }\n" i cell.l cell.x cell.y)
+    cells
+
 let rec take n = function
   | first :: rest when n > 0 -> first :: take (n - 1) rest
   | _ -> []

@@ -1,16 +1,10 @@
 let parse_input str =
   str |> String.split_on_char '\n'
-  |> List.map (fun x ->
-         x |> String.split_on_char ' '
-         |> List.filter_map (fun y ->
-                try Some (int_of_string y) with
-                | Failure _ -> None))
+  |> List.map (fun x -> x |> String.split_on_char ' ' |> List.map int_of_string)
 
 let rec is_sorted cmp = function
-  | []
-  | [ _ ] ->
-    true
   | x :: y :: xs -> cmp x y && is_sorted cmp (y :: xs)
+  | _ -> true
 
 let is_safe list =
   list |> Utils.windows 2
@@ -43,5 +37,4 @@ let part2 input =
          try_removing_at 0)
   |> List.length
 
-let input = Utils.read_file "data/day-2.txt"
-let get_solution () = part2 input |> print_int
+let get_solution () = part2 (Utils.read_file "data/day-2.txt") |> print_int

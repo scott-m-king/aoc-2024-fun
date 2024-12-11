@@ -14,17 +14,15 @@ let parse_input str =
 
 let count target list = list |> List.filter (fun x -> x = target) |> List.length
 
-let part1 =
-  let left, right = Utils.read_file "data/day1.txt" |> parse_input in
+let part1 input =
+  let left, right = parse_input input in
 
-  let left_sorted, _right_sorted = (List.sort compare left, List.sort compare right) in
-
-  List.combine left_sorted _right_sorted
+  List.combine (List.sort compare left) (List.sort compare right)
   |> List.map (fun (x, y) -> abs (x - y))
   |> List.fold_left ( + ) 0
 
-let part2 =
-  let left, right = Utils.read_file "data/day1.txt" |> parse_input in
+let part2 input =
+  let left, right = parse_input input in
   left
   |> List.fold_left
        (fun acc curr ->
@@ -32,4 +30,4 @@ let part2 =
          acc + (counts * curr))
        0
 
-let get_solution () = Printf.printf "\n%d\n" part2
+let get_solution () = part2 (Utils.read_file "data/day-1.txt") |> print_int
