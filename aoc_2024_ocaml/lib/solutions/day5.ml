@@ -12,12 +12,12 @@ let add_order order key (left, right) =
   else
     order
 
-let add_to_dict map key (elem : int * int) : order_dict =
+let add_to_dict map key elem =
   match Dict.find_opt key map with
   | Some order -> Dict.add key (add_order order key elem) map
   | None -> Dict.add key (add_order IntSet.empty key elem) map
 
-let parse_ordering input : order_dict =
+let parse_ordering input =
   let map = Dict.empty in
   input |> String.split_on_char '\n'
   |> List.filter_map (fun str ->
@@ -35,7 +35,7 @@ let parse_input input =
   | [ ordering; numbers ] -> (parse_ordering ordering, parse_numbers numbers)
   | _ -> (Dict.empty, [])
 
-let validate lst (ordering : order_dict) =
+let validate lst ordering =
   let rec aux result remaining =
     match remaining with
     | first :: second :: rest -> (
