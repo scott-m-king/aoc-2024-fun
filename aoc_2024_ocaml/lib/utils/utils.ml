@@ -10,7 +10,8 @@ let print_pair_lists (lst1, lst2) =
 
 let print_list lst = "[" ^ (List.map string_of_int lst |> String.concat "; ") ^ "]" |> print_endline
 let print_str_list lst = List.iter (Printf.printf "%s\n") lst
-let print_tuple_list lst = 
+
+let print_tuple_list lst =
   Format.printf "@[<h>[";
   lst |> List.iter (fun (x, y) -> Format.printf "(%d,%d);@ " x y);
   Format.printf "]@]@\n"
@@ -58,6 +59,42 @@ let print_char_grid lst =
       List.iter (fun c -> Printf.printf "%c " c) inner_list;
       Printf.printf "\n")
     lst
+
+module IntSet = Set.Make (Int)
+
+type before = IntSet.t
+
+module Dict = Map.Make (Int)
+
+type order_dict = before Dict.t
+
+(* Helper function to print a set of integers in a readable format *)
+let print_set set =
+  (* Convert the set to a list and print with brackets and commas *)
+  Printf.printf "[";
+  let first = ref true in
+  IntSet.iter
+    (fun x ->
+      if !first then
+        first := false
+      else
+        Printf.printf ", ";
+      Printf.printf "%d" x)
+    set;
+  Printf.printf "]"
+
+(* Main function to print the entire dictionary *)
+let print_order_dict dict =
+  Printf.printf "Order Dictionary:\n";
+  Dict.iter
+    (fun key order ->
+      (* Print the key with proper indentation *)
+      Printf.printf "Key %d:\n" key;
+      (* Print the 'before' set with indentation *)
+      Printf.printf "  Before: ";
+      print_set order;
+      Printf.printf "\n\n")
+    dict
 
 let rec take n = function
   | first :: rest when n > 0 -> first :: take (n - 1) rest

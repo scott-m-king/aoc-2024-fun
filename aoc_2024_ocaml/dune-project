@@ -19,7 +19,7 @@
  (name aoc_2024_ocaml)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml utop dune re)
+ (depends ocaml utop dune re str)
  (tags
   ("add topics" "to describe" your project)))
 
