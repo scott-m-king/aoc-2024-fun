@@ -26,13 +26,13 @@ let parse_ordering input =
          | _ -> None)
   |> List.fold_left (fun acc (l, r) -> add_to_dict (add_to_dict acc l (l, r)) r (l, r)) map
 
-let parse_numbers input =
+let parse_updates input =
   input |> String.split_on_char '\n'
   |> List.map (fun str -> String.split_on_char ',' str |> List.map int_of_string)
 
 let parse_input input =
   match Str.split (Str.regexp "\n\n") input with
-  | [ ordering; numbers ] -> (parse_ordering ordering, parse_numbers numbers)
+  | [ ordering; numbers ] -> (parse_ordering ordering, parse_updates numbers)
   | _ -> (Dict.empty, [])
 
 let validate lst ordering =
@@ -52,5 +52,18 @@ let part1 input =
   |> List.filter (fun lst -> validate lst ordering)
   |> List.fold_left (fun acc lst -> acc + List.nth lst (List.length lst / 2)) 0
 
-let part2 _input = 0
-let get_solution () = part1 (Utils.read_file "data/day-5.txt") |> print_int
+let reorder lst ordering =
+  lst
+  |> List.sort (fun a b ->
+         match Dict.find b ordering |> IntSet.find_opt a with
+         | Some _ -> 1
+         | None -> -1)
+
+let part2 input =
+  let ordering, numbers = parse_input input in
+  numbers
+  |> List.filter (fun lst -> not (validate lst ordering))
+  |> List.map (fun lst -> reorder lst ordering)
+  |> List.fold_left (fun acc lst -> acc + List.nth lst (List.length lst / 2)) 0
+
+let get_solution () = part2 (Utils.read_file "data/day-5.txt") |> print_int
