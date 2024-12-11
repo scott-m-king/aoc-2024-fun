@@ -104,6 +104,19 @@ let print_cell_list_vertical cells =
     (fun i cell -> Printf.printf "  %d: { letter: '%c'; x: %d; y: %d }\n" i cell.l cell.x cell.y)
     cells
 
+let make_indices w h = List.init h (fun y -> List.init w (fun x -> (x, y))) |> List.flatten
+
+let parse_grid input =
+  input |> String.split_on_char '\n'
+  |> List.map (fun str -> String.to_seq str |> Array.of_seq)
+  |> Array.of_list
+
+let get_cell grid row col (i, j) : cell option =
+  let x = row + i in
+  let y = col + j in
+  try Some { l = grid.(x).(y); x; y } with
+  | Invalid_argument _ -> None
+
 let rec take n = function
   | first :: rest when n > 0 -> first :: take (n - 1) rest
   | _ -> []

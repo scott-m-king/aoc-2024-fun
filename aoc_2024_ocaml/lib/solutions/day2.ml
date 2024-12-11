@@ -1,3 +1,5 @@
+open Utils
+
 let parse_input str =
   str |> String.split_on_char '\n'
   |> List.map (fun x -> x |> String.split_on_char ' ' |> List.map int_of_string)
@@ -7,7 +9,7 @@ let rec is_sorted cmp = function
   | _ -> true
 
 let is_safe list =
-  list |> Utils.windows 2
+  list |> windows 2
   |> List.for_all (fun lst ->
          match lst with
          | x :: y :: _ ->
@@ -37,4 +39,4 @@ let part2 input =
          try_removing_at 0)
   |> List.length
 
-let get_solution () = part2 (Utils.read_file "data/day-2.txt") |> print_int
+let get_solution () = part2 (read_file "data/day-2.txt") |> print_int

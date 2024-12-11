@@ -1,17 +1,4 @@
-type cell = { l : char; x : int; y : int }
-
-let make_indices w h = List.init h (fun y -> List.init w (fun x -> (x, y))) |> List.flatten
-
-let parse_input input =
-  input |> String.split_on_char '\n'
-  |> List.map (fun str -> String.to_seq str |> Array.of_seq)
-  |> Array.of_list
-
-let get_cell grid row col (i, j) =
-  let x = row + i in
-  let y = col + j in
-  try Some { l = grid.(x).(y); x; y } with
-  | Invalid_argument _ -> None
+open Utils
 
 let rec find_xmas grid cell direction =
   match cell.l with
@@ -37,8 +24,7 @@ let int_of_xmas_match grid x y =
   | _ -> 0
 
 let part1 input =
-  let grid = parse_input input in
-
+  let grid = parse_grid input in
   make_indices (Array.length grid) (Array.length grid.(0))
   |> List.fold_left
        (fun acc (x, y) ->
@@ -52,7 +38,7 @@ let part1 input =
        0
 
 let part2 input =
-  let grid = parse_input input in
+  let grid = parse_grid input in
   make_indices (Array.length grid) (Array.length grid.(0))
   |> List.fold_left
        (fun acc (x, y) ->
@@ -61,4 +47,4 @@ let part2 input =
          | _ -> acc)
        0
 
-let get_solution () = part2 (Utils.read_file "data/day-4.txt") |> print_int
+let get_solution () = part2 (read_file "data/day-4.txt") |> print_int

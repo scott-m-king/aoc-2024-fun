@@ -1,4 +1,5 @@
-open Re
+open Re 
+open Utils
 
 let mut_pattern = compile (Perl.re {|mul\((\d+),(\d+)\)|})
 let a_pattern = compile (Perl.re {|do\(\)|})
@@ -35,7 +36,7 @@ let part2 input =
   |> List.sort (fun (a, _) (b, _) -> a - b)
   |> find_last_occurrences
   |> append_last_position (String.length input)
-  |> Utils.windows 2 |> every_other
+  |> windows 2 |> every_other
   |> List.map (fun w ->
          let start = List.hd w in
          let len = List.nth w 1 - start in
@@ -43,4 +44,4 @@ let part2 input =
   |> List.flatten
   |> List.fold_left (fun acc (l, r) -> acc + (l * r)) 0
 
-let get_solution () = part2 (Utils.read_file "data/day-3.txt") |> print_int
+let get_solution () = part2 (read_file "data/day-3.txt") |> print_int

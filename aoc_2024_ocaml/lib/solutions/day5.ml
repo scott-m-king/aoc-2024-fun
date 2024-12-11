@@ -1,3 +1,5 @@
+open Utils
+
 module IntSet = Set.Make (Int)
 
 type before_set = IntSet.t
@@ -65,4 +67,4 @@ let part2 input =
   |> List.map (fun updates -> sort_by_ordering updates ordering)
   |> List.fold_left (fun acc updates -> acc + List.nth updates (List.length updates / 2)) 0
 
-let get_solution () = part2 (Utils.read_file "data/day-5.txt") |> print_int
+let get_solution () = part2 (read_file "data/day-5.txt") |> print_int

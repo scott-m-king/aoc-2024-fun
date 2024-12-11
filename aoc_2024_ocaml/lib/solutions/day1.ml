@@ -1,3 +1,5 @@
+open Utils
+
 let parse_input str =
   str |> String.split_on_char '\n'
   |> List.filter_map (fun line ->
@@ -30,4 +32,4 @@ let part2 input =
          acc + (counts * curr))
        0
 
-let get_solution () = part2 (Utils.read_file "data/day-1.txt") |> print_int
+let get_solution () = part2 (read_file "data/day-1.txt") |> print_int
