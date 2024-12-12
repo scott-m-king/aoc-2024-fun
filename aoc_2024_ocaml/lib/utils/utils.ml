@@ -53,12 +53,12 @@ let print_str_pairs lst =
     lst
 
 let print_char_grid lst =
-  print_char '\n';
   Array.iter
     (fun inner_list ->
-      Array.iter (fun c -> Printf.printf "%c " c) inner_list;
+      Array.iter (fun c -> Printf.printf "%c" c) inner_list;
       Printf.printf "\n")
-    lst
+    lst;
+  Printf.printf "\n"
 
 module IntSet = Set.Make (Int)
 

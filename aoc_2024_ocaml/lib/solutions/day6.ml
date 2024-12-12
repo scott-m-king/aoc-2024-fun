@@ -2,8 +2,10 @@ open Utils
 
 let up = (-1, 0)
 let down = (1, 0)
-let left = (0, -0)
+let left = (0, -1)
 let right = (0, 1)
+
+type steps = { cell : cell; steps : int }
 
 let find_start grid indices =
   let rec aux result positions =
@@ -24,36 +26,35 @@ let turn char =
   | '<' -> '^'
   | _ -> '.'
 
-let rec walk grid cell =
-  grid.(cell.x).(cell.y) <- 'X';
-  match cell.l with
-  | '^' -> find_next grid up cell
-  | '>' -> find_next grid right cell
-  | 'v' -> find_next grid down cell
-  | '<' -> find_next grid left cell
-  | _ -> None
+let rec walk grid (steps : steps) =
+  grid.(steps.cell.x).(steps.cell.y) <- 'X';
+  match steps.cell.l with
+  | '^' -> find_next grid up steps
+  | '>' -> find_next grid right steps
+  | 'v' -> find_next grid down steps
+  | '<' -> find_next grid left steps
+  | _ -> steps
 
-and find_next grid (x_pos, y_pos) curr =
-  print_cell curr;
-  let next_x = curr.x + x_pos in
-  let next_y = curr.y + y_pos in
-  match get_cell grid (next_x, next_y) with
-  | Some { l = '#'; _ } -> walk grid { l = turn curr.l; x = curr.x; y = curr.y }
-  | Some { l = '.'; _ }
-  | Some { l = 'X'; _ } ->
-    walk grid { l = curr.l; x = next_x; y = next_y }
-  | _ -> None
+and find_next grid (x_pos, y_pos) { cell; steps } : steps =
+  let next_x = cell.x + x_pos in
+  let next_y = cell.y + y_pos in
+  let next =
+    match get_cell grid (next_x, next_y) with
+    | Some { l = '#'; _ } -> Some (turn cell.l, cell.x, cell.y, steps)
+    | Some { l = 'X'; _ } -> Some (cell.l, next_x, next_y, steps)
+    | Some { l = '.'; _ } -> Some (cell.l, next_x, next_y, steps + 1)
+    | _ -> None
+  in
+  match next with
+  | Some (l, x, y, s) -> walk grid { cell = { l; x; y }; steps = s }
+  | None -> { cell; steps }
 
 let part1 input =
   let grid = parse_grid input in
   let indices = make_indices grid in
-  let start = find_start grid indices in
-  let _finish = walk grid start in
-  print_char_grid grid;
 
-  Printf.printf "Start: (%d, %d)" start.x start.y;
-
-  0
+  find_start grid indices
+  |> fun start -> walk grid { cell = start; steps = 1 } |> fun finish -> finish.steps
 
 let part2 _input = 0
-let get_solution () = part1 (read_file "data/day-6-test.txt") |> print_int
+let get_solution () = part1 (read_file "data/day-6.txt") |> print_int
