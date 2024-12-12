@@ -35,11 +35,13 @@ let rec walk grid cell =
 
 and find_next grid (x_pos, y_pos) curr =
   print_cell curr;
-  match get_cell grid (curr.x + x_pos, curr.y + y_pos) with
-  | Some { l = '#'; x; y } -> walk grid { l = turn curr.l; x; y }
+  let next_x = curr.x + x_pos in
+  let next_y = curr.y + y_pos in
+  match get_cell grid (next_x, next_y) with
+  | Some { l = '#'; _ } -> walk grid { l = turn curr.l; x = curr.x; y = curr.y }
   | Some { l = '.'; _ }
   | Some { l = 'X'; _ } ->
-    walk grid curr
+    walk grid { l = curr.l; x = next_x; y = next_y }
   | _ -> None
 
 let part1 input =
