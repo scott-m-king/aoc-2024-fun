@@ -24,7 +24,13 @@ let turn char =
   | '>' -> 'v'
   | 'v' -> '<'
   | '<' -> '^'
-  | _ -> '.'
+  | c -> c
+
+let get_next_cell cell next_x next_y steps = function
+  | { l = '#'; _ } -> Some (turn cell.l, cell.x, cell.y, steps)
+  | { l = 'X'; _ } -> Some (cell.l, next_x, next_y, steps)
+  | { l = '.'; _ } -> Some (cell.l, next_x, next_y, steps + 1)
+  | _ -> None
 
 let rec walk grid (steps : steps) =
   grid.(steps.cell.x).(steps.cell.y) <- 'X';
@@ -38,16 +44,9 @@ let rec walk grid (steps : steps) =
 and find_next grid (x_pos, y_pos) { cell; steps } : steps =
   let next_x = cell.x + x_pos in
   let next_y = cell.y + y_pos in
-  let next =
-    match get_cell grid (next_x, next_y) with
-    | Some { l = '#'; _ } -> Some (turn cell.l, cell.x, cell.y, steps)
-    | Some { l = 'X'; _ } -> Some (cell.l, next_x, next_y, steps)
-    | Some { l = '.'; _ } -> Some (cell.l, next_x, next_y, steps + 1)
-    | _ -> None
-  in
-  match next with
-  | Some (l, x, y, s) -> walk grid { cell = { l; x; y }; steps = s }
-  | None -> { cell; steps }
+  Option.bind (get_cell grid (next_x, next_y)) (get_next_cell cell next_x next_y steps)
+  |> Option.map (fun (l, x, y, s) -> walk grid { cell = { l; x; y }; steps = s })
+  |> Option.value ~default:{ cell; steps }
 
 let part1 input =
   let grid = parse_grid input in
