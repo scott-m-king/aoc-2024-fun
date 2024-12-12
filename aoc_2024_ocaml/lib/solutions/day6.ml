@@ -5,7 +5,15 @@ let down = (1, 0)
 let left = (0, -1)
 let right = (0, 1)
 
-type steps = { cell : cell; steps : int }
+module TupleSet = struct
+  type t = int * int
+
+  let compare = compare
+end
+
+module StepSet = Set.Make (TupleSet)
+
+type steps = { cell : cell; steps : StepSet.t }
 
 let find_start grid indices =
   let rec aux result positions =
@@ -26,14 +34,7 @@ let turn char =
   | '<' -> '^'
   | c -> c
 
-let get_next_cell cell next_x next_y steps = function
-  | { l = '#'; _ } -> Some (turn cell.l, cell.x, cell.y, steps)
-  | { l = 'X'; _ } -> Some (cell.l, next_x, next_y, steps)
-  | { l = '.'; _ } -> Some (cell.l, next_x, next_y, steps + 1)
-  | _ -> None
-
 let rec walk grid (steps : steps) =
-  grid.(steps.cell.x).(steps.cell.y) <- 'X';
   match steps.cell.l with
   | '^' -> find_next grid up steps
   | '>' -> find_next grid right steps
@@ -44,8 +45,14 @@ let rec walk grid (steps : steps) =
 and find_next grid (x_pos, y_pos) { cell; steps } : steps =
   let next_x = cell.x + x_pos in
   let next_y = cell.y + y_pos in
-  Option.bind (get_cell grid (next_x, next_y)) (get_next_cell cell next_x next_y steps)
-  |> Option.map (fun (l, x, y, s) -> walk grid { cell = { l; x; y }; steps = s })
+  Option.bind
+    (get_cell grid (next_x, next_y))
+    (function
+      | { l = '#'; _ } -> Some (turn cell.l, (cell.x, cell.y))
+      | { l = '.'; _ } -> Some (cell.l, (next_x, next_y))
+      | _ -> None)
+  |> Option.map (fun (l, (x, y)) ->
+         walk grid { cell = { l; x; y }; steps = StepSet.add (x, y) steps })
   |> Option.value ~default:{ cell; steps }
 
 let part1 input =
@@ -53,7 +60,9 @@ let part1 input =
   let indices = make_indices grid in
 
   find_start grid indices
-  |> fun start -> walk grid { cell = start; steps = 1 } |> fun finish -> finish.steps
+  |> fun start ->
+  walk grid { cell = start; steps = StepSet.of_list [ (start.x, start.y) ] }
+  |> fun finish -> StepSet.cardinal finish.steps
 
 let part2 _input = 0
 let get_solution () = part1 (read_file "data/day-6.txt") |> print_int
