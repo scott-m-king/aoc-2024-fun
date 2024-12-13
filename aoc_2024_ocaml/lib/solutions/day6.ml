@@ -8,10 +8,10 @@ end
 
 module StepSet = Set.Make (TupleSet)
 
-type steps = { cell : cell; steps : StepSet.t }
+type steps = { cell : cell; visited : StepSet.t }
 
 let steps_mapper steps =
- fun { l; x; y } -> Some { cell = { l; x; y }; steps = StepSet.add (x, y) steps.steps }
+ fun { l; x; y } -> Some { cell = { l; x; y }; visited = StepSet.add (x, y) steps.visited }
 
 let cell_mapper = fun (cell : cell) -> Some cell
 
@@ -61,8 +61,8 @@ let rec walk grid steps =
 let find_path grid indices =
   find_start grid indices
   |> fun start ->
-  walk grid { cell = start; steps = StepSet.of_list [ (start.x, start.y) ] }
-  |> fun finish -> finish.steps
+  walk grid { cell = start; visited = StepSet.of_list [ (start.x, start.y) ] }
+  |> fun finish -> finish.visited
 
 let part1 input =
   let grid = parse_grid input in
