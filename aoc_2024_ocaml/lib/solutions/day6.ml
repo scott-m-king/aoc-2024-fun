@@ -75,14 +75,13 @@ let get_next cell grid i =
          | _ -> None)
        (Some cell)
 
-let rec walk_loop grid tortoise hare =
-  if tortoise = hare then true else find_next_loop grid tortoise hare
+let rec has_loop grid tortoise hare = if tortoise = hare then true else walk2 grid tortoise hare
 
-and find_next_loop grid tortoise hare =
+and walk2 grid tortoise hare =
   let next_tortoise = get_next tortoise grid 1 in
   let next_hare = get_next hare grid 2 in
   match (next_tortoise, next_hare) with
-  | Some t, Some h -> walk_loop grid t h
+  | Some t, Some h -> has_loop grid t h
   | _ -> false
 
 let clone_with_obstacle grid (x, y) =
@@ -93,9 +92,7 @@ let try_at_position grid (x, y) tortoise hare =
   let char_at_pos = grid.(x).(y) in
   match char_at_pos with
   | '^' -> 0
-  | _ ->
-    let result = walk_loop (clone_with_obstacle grid (x, y)) tortoise hare in
-    if result then 1 else 0
+  | _ -> if has_loop (clone_with_obstacle grid (x, y)) tortoise hare then 1 else 0
 
 let part2 input =
   let grid = parse_grid input in
