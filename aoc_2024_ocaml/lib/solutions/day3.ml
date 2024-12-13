@@ -1,4 +1,4 @@
-open Re 
+open Re
 open Utils
 
 let mut_pattern = compile (Perl.re {|mul\((\d+),(\d+)\)|})

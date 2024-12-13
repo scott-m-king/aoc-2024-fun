@@ -1,5 +1,4 @@
 open Utils
-
 module IntSet = Set.Make (Int)
 
 type before_set = IntSet.t
@@ -8,11 +7,7 @@ module Dict = Map.Make (Int)
 
 type order_dict = before_set Dict.t
 
-let add_order order key (left, right) =
-  if key = left then
-    IntSet.add right order
-  else
-    order
+let add_order order key (left, right) = if key = left then IntSet.add right order else order
 
 let add_to_dict map key elem =
   match Dict.find_opt key map with

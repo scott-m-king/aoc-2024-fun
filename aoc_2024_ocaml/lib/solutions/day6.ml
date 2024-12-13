@@ -86,10 +86,7 @@ let get_next_hare hare grid =
        (Some hare)
 
 let rec walk_loop grid tortoise hare =
-  if tortoise = hare then
-    true
-  else
-    find_next_loop grid tortoise hare
+  if tortoise = hare then true else find_next_loop grid tortoise hare
 
 and find_next_loop grid tortoise hare =
   let next_tortoise = get_next_pos_pt2 grid tortoise in
@@ -106,10 +103,7 @@ let try_at_position grid (x, y) tortoise hare =
     grid.(x).(y) <- '#';
     let result = walk_loop grid tortoise hare in
     grid.(x).(y) <- char_at_pos;
-    if result then
-      1
-    else
-      0
+    if result then 1 else 0
 
 let part2 input =
   let grid = parse_grid input in

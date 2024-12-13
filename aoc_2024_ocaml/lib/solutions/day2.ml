@@ -27,14 +27,11 @@ let part2 input =
   |> List.filter (fun line ->
          let len = List.length line in
          let rec try_removing_at i =
-           if i >= len then
-             false
+           if i >= len then false
            else
              let filtered = List.filteri (fun j _ -> i <> j) line in
-             if (is_sorted ( > ) filtered || is_sorted ( < ) filtered) && is_safe filtered then
-               true
-             else
-               try_removing_at (i + 1)
+             if (is_sorted ( > ) filtered || is_sorted ( < ) filtered) && is_safe filtered then true
+             else try_removing_at (i + 1)
          in
          try_removing_at 0)
   |> List.length
