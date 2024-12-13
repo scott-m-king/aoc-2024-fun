@@ -62,12 +62,7 @@ let find_path grid indices =
 
 let part1 input =
   let grid = parse_grid input in
-  let indices = make_indices grid in
-
-  find_start grid indices
-  |> fun start ->
-  walk grid { cell = start; steps = StepSet.of_list [ (start.x, start.y) ] }
-  |> fun finish -> StepSet.cardinal finish.steps
+  make_indices grid |> fun indices -> find_path grid indices |> StepSet.cardinal
 
 let get_next_pos_pt2 grid cell =
   match find_dir cell with
@@ -129,4 +124,4 @@ let part2 input =
          acc + try_at_position grid pos start h)
        0
 
-let get_solution () = part2 (read_file "data/day-6.txt") |> print_int
+let get_solution () = part1 (read_file "data/day-6.txt") |> print_int
