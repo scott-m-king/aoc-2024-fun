@@ -29,7 +29,7 @@ let turn char =
   | '<' -> '^'
   | c -> c
 
-let find_dir { l; x; y } =
+let get_next_pos { l; x; y } =
   match l with
   | '^' -> Some (x - 1, y)
   | '>' -> Some (x, y + 1)
@@ -37,8 +37,8 @@ let find_dir { l; x; y } =
   | '<' -> Some (x, y - 1)
   | _ -> None
 
-let get_next_pos (type a) grid cell mapper : a option =
-  match find_dir cell with
+let get_next_cell (type a) grid cell mapper : a option =
+  match get_next_pos cell with
   | Some (x, y) ->
     Option.bind
       (get_cell grid (x, y))
@@ -50,9 +50,9 @@ let get_next_pos (type a) grid cell mapper : a option =
 
 let rec walk grid steps =
   let steps_mapper steps =
-   fun { l; x; y } -> Some { cell = { l; x; y }; visited = StepSet.add (x, y) steps.visited }
+   fun cell -> Some { cell; visited = StepSet.add (cell.x, cell.y) steps.visited }
   in
-  match get_next_pos grid steps.cell (steps_mapper steps) with
+  match get_next_cell grid steps.cell (steps_mapper steps) with
   | None -> steps
   | Some next -> walk grid next
 
@@ -66,14 +66,14 @@ let part1 input =
   let grid = parse_grid input in
   make_indices grid |> fun indices -> find_path grid indices |> StepSet.cardinal
 
-let get_next hare grid i =
+let get_next cell grid i =
   List.init i (fun x -> x)
   |> List.fold_left
        (fun next _ ->
          match next with
-         | Some h -> get_next_pos grid h (fun (cell : cell) -> Some cell)
+         | Some h -> get_next_cell grid h (fun cell -> Some cell)
          | _ -> None)
-       (Some hare)
+       (Some cell)
 
 let rec walk_loop grid tortoise hare =
   if tortoise = hare then true else find_next_loop grid tortoise hare
@@ -99,12 +99,9 @@ let part2 input =
   let grid = parse_grid input in
   let indices = make_indices grid in
   let tortoise = find_start grid indices in
+  let hare = get_next tortoise grid 2 |> Option.get in
 
   find_path grid indices |> StepSet.to_list
-  |> List.fold_left
-       (fun acc pos ->
-         let hare = get_next tortoise grid 2 |> Option.get in
-         acc + try_at_position grid pos tortoise hare)
-       0
+  |> List.fold_left (fun acc pos -> acc + try_at_position grid pos tortoise hare) 0
 
 let get_solution () = part2 (read_file "data/day-6.txt") |> print_int
