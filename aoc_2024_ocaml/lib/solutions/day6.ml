@@ -10,6 +10,11 @@ module StepSet = Set.Make (TupleSet)
 
 type steps = { cell : cell; steps : StepSet.t }
 
+let steps_mapper steps =
+ fun (l, (x, y)) -> Some { cell = { l; x; y }; steps = StepSet.add (x, y) steps.steps }
+
+let cell_mapper = fun (l, (x, y)) -> Some { l; x; y }
+
 let find_start grid indices =
   let rec aux result positions =
     match positions with
@@ -37,7 +42,7 @@ let find_dir { l; x; y } =
   | '<' -> Some (x, y - 1)
   | _ -> None
 
-let get_next_pos_pt1 grid { cell; steps } =
+let get_next_pos (type a) grid cell mapper : a option =
   match find_dir cell with
   | Some (x, y) ->
     Option.bind
@@ -45,12 +50,11 @@ let get_next_pos_pt1 grid { cell; steps } =
       (function
         | { l = '#'; _ } -> Some (turn cell.l, (cell.x, cell.y))
         | _ -> Some (cell.l, (x, y)))
-    |> Option.map (fun (l, (x, y)) -> Some { cell = { l; x; y }; steps = StepSet.add (x, y) steps })
-    |> Option.value ~default:None
+    |> Option.map mapper |> Option.value ~default:None
   | _ -> None
 
 let rec walk grid steps =
-  match get_next_pos_pt1 grid steps with
+  match get_next_pos grid steps.cell (steps_mapper steps) with
   | None -> steps
   | Some next -> walk grid next
 
@@ -64,24 +68,12 @@ let part1 input =
   let grid = parse_grid input in
   make_indices grid |> fun indices -> find_path grid indices |> StepSet.cardinal
 
-let get_next_pos_pt2 grid cell =
-  match find_dir cell with
-  | Some (x, y) ->
-    Option.bind
-      (get_cell grid (x, y))
-      (function
-        | { l = '#'; _ } -> Some (turn cell.l, (cell.x, cell.y))
-        | _ -> Some (cell.l, (x, y)))
-    |> Option.map (fun (l, (x, y)) -> Some { l; x; y })
-    |> Option.value ~default:None
-  | _ -> None
-
 let get_next_hare hare grid =
   List.init 2 (fun x -> x)
   |> List.fold_left
        (fun next _ ->
          match next with
-         | Some h -> get_next_pos_pt2 grid h
+         | Some h -> get_next_pos grid h cell_mapper
          | _ -> None)
        (Some hare)
 
@@ -89,7 +81,7 @@ let rec walk_loop grid tortoise hare =
   if tortoise = hare then true else find_next_loop grid tortoise hare
 
 and find_next_loop grid tortoise hare =
-  let next_tortoise = get_next_pos_pt2 grid tortoise in
+  let next_tortoise = get_next_pos grid tortoise cell_mapper in
   let next_hare = get_next_hare hare grid in
   match (next_tortoise, next_hare) with
   | Some t, Some h -> walk_loop grid t h
