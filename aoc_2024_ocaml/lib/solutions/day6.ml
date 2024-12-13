@@ -11,9 +11,9 @@ module StepSet = Set.Make (TupleSet)
 type steps = { cell : cell; steps : StepSet.t }
 
 let steps_mapper steps =
- fun (l, (x, y)) -> Some { cell = { l; x; y }; steps = StepSet.add (x, y) steps.steps }
+ fun { l; x; y } -> Some { cell = { l; x; y }; steps = StepSet.add (x, y) steps.steps }
 
-let cell_mapper = fun (l, (x, y)) -> Some { l; x; y }
+let cell_mapper = fun (cell : cell) -> Some cell
 
 let find_start grid indices =
   let rec aux result positions =
@@ -48,8 +48,8 @@ let get_next_pos (type a) grid cell mapper : a option =
     Option.bind
       (get_cell grid (x, y))
       (function
-        | { l = '#'; _ } -> Some (turn cell.l, (cell.x, cell.y))
-        | _ -> Some (cell.l, (x, y)))
+        | { l = '#'; _ } -> Some { l = turn cell.l; x = cell.x; y = cell.y }
+        | _ -> Some { l = cell.l; x; y })
     |> Option.map mapper |> Option.value ~default:None
   | _ -> None
 
