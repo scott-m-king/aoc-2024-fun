@@ -100,9 +100,9 @@ and find_next_loop grid tortoise hare =
 
 let try_at_position grid (x, y) tortoise hare =
   let char_at_pos = grid.(x).(y) in
-  if char_at_pos = '#' || char_at_pos = '^' then
-    0
-  else (
+  match char_at_pos with
+  | '^' -> 0
+  | _ ->
     grid.(x).(y) <- '#';
     let result = walk_loop grid tortoise hare in
     grid.(x).(y) <- char_at_pos;
@@ -110,7 +110,6 @@ let try_at_position grid (x, y) tortoise hare =
       1
     else
       0
-  )
 
 let part2 input =
   let grid = parse_grid input in
@@ -124,4 +123,4 @@ let part2 input =
          acc + try_at_position grid pos start h)
        0
 
-let get_solution () = part1 (read_file "data/day-6.txt") |> print_int
+let get_solution () = part2 (read_file "data/day-6.txt") |> print_int
