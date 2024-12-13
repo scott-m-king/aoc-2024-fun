@@ -1,10 +1,5 @@
 open Utils
 
-let up = (-1, 0)
-let down = (1, 0)
-let left = (0, -1)
-let right = (0, 1)
-
 module TupleSet = struct
   type t = int * int
 
@@ -34,25 +29,30 @@ let turn char =
   | '<' -> '^'
   | c -> c
 
-let rec walk grid (steps : steps) =
-  match steps.cell.l with
-  | '^' -> find_next grid up steps
-  | '>' -> find_next grid right steps
-  | 'v' -> find_next grid down steps
-  | '<' -> find_next grid left steps
-  | _ -> steps
+let find_dir { l; x; y } =
+  match l with
+  | '^' -> Some (x - 1, y)
+  | '>' -> Some (x, y + 1)
+  | 'v' -> Some (x + 1, y)
+  | '<' -> Some (x, y - 1)
+  | _ -> None
 
-and find_next grid (x_pos, y_pos) { cell; steps } : steps =
-  let next_x = cell.x + x_pos in
-  let next_y = cell.y + y_pos in
-  Option.bind
-    (get_cell grid (next_x, next_y))
-    (function
-      | { l = '#'; _ } -> Some (turn cell.l, (cell.x, cell.y))
-      | _ -> Some (cell.l, (next_x, next_y)))
-  |> Option.map (fun (l, (x, y)) ->
-         walk grid { cell = { l; x; y }; steps = StepSet.add (x, y) steps })
-  |> Option.value ~default:{ cell; steps }
+let get_next_pos_pt1 grid { cell; steps } =
+  match find_dir cell with
+  | Some (x, y) ->
+    Option.bind
+      (get_cell grid (x, y))
+      (function
+        | { l = '#'; _ } -> Some (turn cell.l, (cell.x, cell.y))
+        | _ -> Some (cell.l, (x, y)))
+    |> Option.map (fun (l, (x, y)) -> Some { cell = { l; x; y }; steps = StepSet.add (x, y) steps })
+    |> Option.value ~default:None
+  | _ -> None
+
+let rec walk grid steps =
+  match get_next_pos_pt1 grid steps with
+  | None -> steps
+  | Some next -> walk grid next
 
 let find_path grid indices =
   find_start grid indices
@@ -69,15 +69,7 @@ let part1 input =
   walk grid { cell = start; steps = StepSet.of_list [ (start.x, start.y) ] }
   |> fun finish -> StepSet.cardinal finish.steps
 
-let find_dir { l; x; y } : (int * int) option =
-  match l with
-  | '^' -> Some (x - 1, y)
-  | '>' -> Some (x, y + 1)
-  | 'v' -> Some (x + 1, y)
-  | '<' -> Some (x, y - 1)
-  | _ -> None
-
-let get_next_pos grid ({ cell; steps } : steps) : steps option =
+let get_next_pos_pt2 grid cell =
   match find_dir cell with
   | Some (x, y) ->
     Option.bind
@@ -85,40 +77,40 @@ let get_next_pos grid ({ cell; steps } : steps) : steps option =
       (function
         | { l = '#'; _ } -> Some (turn cell.l, (cell.x, cell.y))
         | _ -> Some (cell.l, (x, y)))
-    |> Option.map (fun (l, (x, y)) -> Some { cell = { l; x; y }; steps = StepSet.add (x, y) steps })
+    |> Option.map (fun (l, (x, y)) -> Some { l; x; y })
     |> Option.value ~default:None
   | _ -> None
 
-let get_next_hare hare grid : steps option =
+let get_next_hare hare grid =
   List.init 2 (fun x -> x)
   |> List.fold_left
        (fun next _ ->
          match next with
-         | Some h -> get_next_pos grid h
+         | Some h -> get_next_pos_pt2 grid h
          | _ -> None)
        (Some hare)
 
-let rec walk_loop grid tortoise hare : bool =
-  if tortoise.cell = hare.cell then
+let rec walk_loop grid tortoise hare =
+  if tortoise = hare then
     true
   else
     find_next_loop grid tortoise hare
 
-and find_next_loop grid tortoise hare : bool =
-  let next_tortoise = get_next_pos grid tortoise in
+and find_next_loop grid tortoise hare =
+  let next_tortoise = get_next_pos_pt2 grid tortoise in
   let next_hare = get_next_hare hare grid in
   match (next_tortoise, next_hare) with
   | Some t, Some h -> walk_loop grid t h
   | _ -> false
 
-let try_at_position grid (x, y) (tortoise : steps) (hare : steps) =
+let try_at_position grid (x, y) tortoise hare =
   let char_at_pos = grid.(x).(y) in
-  if (x = tortoise.cell.x && y = tortoise.cell.y) || char_at_pos = '#' || char_at_pos = '^' then
+  if char_at_pos = '#' || char_at_pos = '^' then
     0
   else (
     grid.(x).(y) <- '#';
     let result = walk_loop grid tortoise hare in
-    grid.(x).(y) <- '.';
+    grid.(x).(y) <- char_at_pos;
     if result then
       1
     else
@@ -133,9 +125,8 @@ let part2 input =
   find_path grid indices |> StepSet.to_list
   |> List.fold_left
        (fun acc pos ->
-         let t = { cell = start; steps = StepSet.of_list [ (start.x, start.y) ] } in
-         let h = get_next_hare t grid |> Option.get in
-         acc + try_at_position grid pos t h)
+         let h = get_next_hare start grid |> Option.get in
+         acc + try_at_position grid pos start h)
        0
 
 let get_solution () = part2 (read_file "data/day-6.txt") |> print_int
