@@ -85,7 +85,7 @@ and find_next_loop grid tortoise hare =
   | Some t, Some h -> walk_loop grid t h
   | _ -> false
 
-let clone_at_pos grid (x, y) =
+let clone_with_obstacle grid (x, y) =
   grid
   |> Array.mapi (fun i row -> Array.mapi (fun j cell -> if i = x && y = j then '#' else cell) row)
 
@@ -94,7 +94,7 @@ let try_at_position grid (x, y) tortoise hare =
   match char_at_pos with
   | '^' -> 0
   | _ ->
-    let result = walk_loop (clone_at_pos grid (x, y)) tortoise hare in
+    let result = walk_loop (clone_with_obstacle grid (x, y)) tortoise hare in
     if result then 1 else 0
 
 let part2 input =
