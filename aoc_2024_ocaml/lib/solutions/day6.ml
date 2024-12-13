@@ -10,11 +10,6 @@ module StepSet = Set.Make (TupleSet)
 
 type steps = { cell : cell; visited : StepSet.t }
 
-let steps_mapper steps =
- fun { l; x; y } -> Some { cell = { l; x; y }; visited = StepSet.add (x, y) steps.visited }
-
-let cell_mapper = fun (cell : cell) -> Some cell
-
 let find_start grid indices =
   let rec aux result positions =
     match positions with
@@ -54,6 +49,9 @@ let get_next_pos (type a) grid cell mapper : a option =
   | _ -> None
 
 let rec walk grid steps =
+  let steps_mapper steps =
+   fun { l; x; y } -> Some { cell = { l; x; y }; visited = StepSet.add (x, y) steps.visited }
+  in
   match get_next_pos grid steps.cell (steps_mapper steps) with
   | None -> steps
   | Some next -> walk grid next
@@ -68,12 +66,12 @@ let part1 input =
   let grid = parse_grid input in
   make_indices grid |> fun indices -> find_path grid indices |> StepSet.cardinal
 
-let get_next_hare hare grid =
-  List.init 2 (fun x -> x)
+let get_next hare grid i =
+  List.init i (fun x -> x)
   |> List.fold_left
        (fun next _ ->
          match next with
-         | Some h -> get_next_pos grid h cell_mapper
+         | Some h -> get_next_pos grid h (fun (cell : cell) -> Some cell)
          | _ -> None)
        (Some hare)
 
@@ -81,8 +79,8 @@ let rec walk_loop grid tortoise hare =
   if tortoise = hare then true else find_next_loop grid tortoise hare
 
 and find_next_loop grid tortoise hare =
-  let next_tortoise = get_next_pos grid tortoise cell_mapper in
-  let next_hare = get_next_hare hare grid in
+  let next_tortoise = get_next tortoise grid 1 in
+  let next_hare = get_next hare grid 2 in
   match (next_tortoise, next_hare) with
   | Some t, Some h -> walk_loop grid t h
   | _ -> false
@@ -105,7 +103,7 @@ let part2 input =
   find_path grid indices |> StepSet.to_list
   |> List.fold_left
        (fun acc pos ->
-         let hare = get_next_hare tortoise grid |> Option.get in
+         let hare = get_next tortoise grid 2 |> Option.get in
          acc + try_at_position grid pos tortoise hare)
        0
 
