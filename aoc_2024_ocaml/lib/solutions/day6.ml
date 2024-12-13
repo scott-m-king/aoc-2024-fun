@@ -50,8 +50,7 @@ and find_next grid (x_pos, y_pos) { cell; steps } : steps =
     (get_cell grid (next_x, next_y))
     (function
       | { l = '#'; _ } -> Some (turn cell.l, (cell.x, cell.y))
-      | { l = '.'; _ } -> Some (cell.l, (next_x, next_y))
-      | _ -> None)
+      | _ -> Some (cell.l, (next_x, next_y)))
   |> Option.map (fun (l, (x, y)) ->
          walk grid { cell = { l; x; y }; steps = StepSet.add (x, y) steps })
   |> Option.value ~default:{ cell; steps }
@@ -71,7 +70,18 @@ let part1 input =
   walk grid { cell = start; steps = StepSet.of_list [ (start.x, start.y) ] }
   |> fun finish -> StepSet.cardinal finish.steps
 
+let clone_grid grid =
+  let rows = Array.length grid in
+  let cols =
+    if rows > 0 then
+      Array.length grid.(0)
+    else
+      0
+  in
+  Array.init rows (fun i -> Array.init cols (fun j -> grid.(i).(j)))
+
 let rec walk_loop grid len steps : steps_loop =
+  grid.(steps.cell.x).(steps.cell.y) <- 'X';
   if steps.count > len then
     { cell = steps.cell; steps = steps.steps; count = 0 }
   else
@@ -88,36 +98,41 @@ and find_next_loop grid len (x_pos, y_pos) { cell; steps; count } : steps_loop =
   Option.bind
     (get_cell grid (next_x, next_y))
     (function
-      | { l = '#'; _ } -> Some (turn cell.l, (cell.x, cell.y))
-      | { l = '.'; _ } -> Some (cell.l, (next_x, next_y))
-      | _ -> None)
+      | { l = '#'; _ }
+      | { l = '0'; _ } ->
+        Some (turn cell.l, (cell.x, cell.y))
+      | _ -> Some (cell.l, (next_x, next_y)))
   |> Option.map (fun (l, (x, y)) ->
          walk_loop grid len
            { cell = { l; x; y }; steps = StepSet.add (x, y) steps; count = count + 1 })
   |> Option.value ~default:{ cell; steps; count }
 
 let try_at_position grid (x, y) start len =
-  if (x = start.x && y = start.y) || grid.(x).(y) = '#' then
+  let char_at_pos = grid.(x).(y) in
+  if (x = start.x && y = start.y) || char_at_pos = '#' || char_at_pos = '^' then
     0
-  else (
-    grid.(x).(y) <- '#';
+  else
+    let temp_grid = clone_grid grid in
+    temp_grid.(x).(y) <- '0';
     let result =
-      walk_loop grid len { cell = start; steps = StepSet.of_list [ (start.x, start.y) ]; count = 1 }
+      walk_loop temp_grid len
+        { cell = start; steps = StepSet.of_list [ (start.x, start.y) ]; count = 1 }
     in
-    grid.(x).(y) <- '.';
-    if result.count > 0 then
+    (* print_char '\n'; print_char_grid temp_grid; *)
+    Printf.printf "Result: %d" result.count;
+    (* print_char '\n'; *)
+    if result.count = 0 then
       1
     else
       0
-  )
 
 let part2 input =
   let grid = parse_grid input in
   let indices = make_indices grid in
   let start = find_start grid indices in
-  let path = find_path grid indices in
+  let path = find_path grid indices |> StepSet.to_list in
 
-  path |> StepSet.to_list
+  path
   |> List.fold_left (fun acc pos -> acc + try_at_position grid pos start (List.length indices)) 0
 
-let get_solution () = part1 (read_file "data/day-6-test.txt") |> print_int
+let get_solution () = part2 (read_file "data/day-6-test.txt") |> print_int
