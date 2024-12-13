@@ -38,8 +38,8 @@ let get_next_pos { l; x; y } =
   | _ -> None
 
 let turn_if_obstacle cell x y = function
-  | { l = '#'; _ } -> Some { l = turn cell.l; x = cell.x; y = cell.y }
-  | _ -> Some { l = cell.l; x; y }
+  | { l = '#'; _ } -> Some { cell with l = turn cell.l }
+  | _ -> Some { cell with x; y }
 
 let get_next_cell (type a) grid cell mapper : a option =
   match get_next_pos cell with
