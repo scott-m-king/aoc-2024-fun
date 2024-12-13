@@ -37,14 +37,14 @@ let get_next_pos { l; x; y } =
   | '<' -> Some (x, y - 1)
   | _ -> None
 
+let turn_if_obstacle cell x y = function
+  | { l = '#'; _ } -> Some { l = turn cell.l; x = cell.x; y = cell.y }
+  | _ -> Some { l = cell.l; x; y }
+
 let get_next_cell (type a) grid cell mapper : a option =
   match get_next_pos cell with
   | Some (x, y) ->
-    Option.bind
-      (get_cell grid (x, y))
-      (function
-        | { l = '#'; _ } -> Some { l = turn cell.l; x = cell.x; y = cell.y }
-        | _ -> Some { l = cell.l; x; y })
+    Option.bind (get_cell grid (x, y)) (turn_if_obstacle cell x y)
     |> Option.map mapper |> Option.value ~default:None
   | _ -> None
 
