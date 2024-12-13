@@ -100,13 +100,13 @@ let try_at_position grid (x, y) tortoise hare =
 let part2 input =
   let grid = parse_grid input in
   let indices = make_indices grid in
-  let start = find_start grid indices in
+  let tortoise = find_start grid indices in
 
   find_path grid indices |> StepSet.to_list
   |> List.fold_left
        (fun acc pos ->
-         let h = get_next_hare start grid |> Option.get in
-         acc + try_at_position grid pos start h)
+         let hare = get_next_hare tortoise grid |> Option.get in
+         acc + try_at_position grid pos tortoise hare)
        0
 
 let get_solution () = part2 (read_file "data/day-6.txt") |> print_int
