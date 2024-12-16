@@ -20,7 +20,7 @@ let rec try_combos acc (target, nums) ops : bool =
   | x, _ when x > target -> false
   | x, None when x = target -> true
   | x, Some (next_num, rest_nums) ->
-    List.exists (fun fn -> try_combos (fn x next_num) (target, rest_nums) ops) ops
+    ops |> List.exists (fun fn -> try_combos (fn x next_num) (target, rest_nums) ops)
   | _ -> false
 
 let part1 input =
