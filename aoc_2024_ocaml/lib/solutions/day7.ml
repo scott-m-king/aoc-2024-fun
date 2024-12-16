@@ -24,8 +24,9 @@ let rec try_combos ?(acc = 0) (target, nums) : bool =
   match (acc, next) with
   | x, None when x = target -> true
   | x, Some (next_num, rest_nums) ->
-    try_combos ~acc:(x + next_num) (target, rest_nums)
-    || try_combos ~acc:(x * next_num) (target, rest_nums)
+    let add = try_combos ~acc:(x + next_num) (target, rest_nums) in
+    let multiply = try_combos ~acc:(x * next_num) (target, rest_nums) in
+    add || multiply
   | _ -> false
 
 let part1 input =
