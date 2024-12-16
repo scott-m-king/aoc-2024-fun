@@ -15,13 +15,13 @@ let parse_input str =
          | _ -> (0, []))
 
 let rec try_combos ?(acc = 0) (target, nums) : bool =
-  let next_num =
+  let next =
     match nums with
     | x :: xs -> Some (x, xs)
     | _ -> None
   in
 
-  match (acc, next_num) with
+  match (acc, next) with
   | x, None when x = target -> true
   | x, Some (next_num, rest_nums) ->
     try_combos ~acc:(x + next_num) (target, rest_nums)
