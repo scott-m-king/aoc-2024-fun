@@ -9,12 +9,14 @@ let parse_input str =
          (int_of_string target, value)
        | _ -> (0, []))
 
-let get_next_nums = function
-  | x :: xs -> Some (x, xs)
-  | _ -> None
-
 let rec try_combos acc (target, nums) ops : bool =
-  match (acc, get_next_nums nums) with
+  let next =
+    match nums with
+    | x :: xs -> Some (x, xs)
+    | _ -> None
+  in
+
+  match (acc, next) with
   | x, _ when x > target -> false
   | x, None when x = target -> true
   | x, Some (next_num, rest_nums) ->
