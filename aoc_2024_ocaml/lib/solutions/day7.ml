@@ -1,18 +1,14 @@
 open Utils
 
 let parse_input str =
-  let lines = str |> String.split_on_char '\n' in
-  let mapping = List.map (fun line -> String.split_on_char ':' line) lines in
-  mapping
-  |> List.map (fun pair ->
-         match pair with
-         | sum :: nums ->
-           let key = int_of_string sum in
-           let value =
-             String.split_on_char ' ' (List.hd nums) |> List.filter_map int_of_string_opt
-           in
-           (key, value)
-         | _ -> (0, []))
+  str |> String.split_on_char '\n'
+  |> List.map (fun line -> String.split_on_char ':' line)
+  |> List.map (function
+       | sum :: nums :: _ ->
+         let key = int_of_string sum in
+         let value = String.split_on_char ' ' nums |> List.filter_map int_of_string_opt in
+         (key, value)
+       | _ -> (0, []))
 
 let rec try_combos ?(acc = 0) (target, nums) : bool =
   let next =
