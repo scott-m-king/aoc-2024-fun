@@ -4,10 +4,9 @@ let parse_input str =
   str |> String.split_on_char '\n'
   |> List.map (fun line -> String.split_on_char ':' line)
   |> List.map (function
-       | sum :: nums :: _ ->
-         let key = int_of_string sum in
+       | target :: nums :: _ ->
          let value = String.split_on_char ' ' nums |> List.filter_map int_of_string_opt in
-         (key, value)
+         (int_of_string target, value)
        | _ -> (0, []))
 
 let rec try_combos ?(acc = 0) (target, nums) : bool =
