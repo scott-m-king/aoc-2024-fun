@@ -9,7 +9,7 @@ let print_pair_lists (lst1, lst2) =
   Printf.printf "(%s, %s)\n" (list_to_string lst1) (list_to_string lst2)
 
 let print_list lst = "[" ^ (List.map string_of_int lst |> String.concat "; ") ^ "]" |> print_endline
-let print_str_list lst = List.iter (Printf.printf "%s\n") lst
+let print_str_list lst = List.iter (Printf.printf "elem: %s\n") lst
 
 let print_tuple_list lst =
   Format.printf "@[<h>[";

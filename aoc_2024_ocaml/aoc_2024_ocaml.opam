@@ -15,6 +15,7 @@ depends: [
   "dune" {>= "3.17"}
   "re"
   "str"
+  "zarith"
   "odoc" {with-doc}
 ]
 build: [
