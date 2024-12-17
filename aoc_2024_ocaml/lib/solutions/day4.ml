@@ -1,7 +1,8 @@
 open Utils
 
-let all_directions = [ (0, 1); (0, -1); (1, 0); (-1, 0); (1, 1); (-1, -1); (1, -1); (-1, 1) ]
-let corners = [ (-1, -1); (1, -1); (-1, 1); (1, 1) ] (* nw sw ne se *)
+let all_directions = [ 0, 1; 0, -1; 1, 0; -1, 0; 1, 1; -1, -1; 1, -1; -1, 1 ]
+
+let corners = [ -1, -1; 1, -1; -1, 1; 1, 1 ] (* nw sw ne se *)
 
 let rec find_xmas grid cell direction =
   match cell.l with
@@ -31,13 +32,13 @@ let part1 input =
   make_indices grid
   |> List.fold_left
        (fun acc (x, y) ->
-         match grid.(x).(y) with
-         | 'X' ->
-           acc
-           + (all_directions
-             |> List.map (fun dir -> find_xmas grid { l = 'X'; x; y } dir)
-             |> List.fold_left ( + ) 0)
-         | _ -> acc)
+          match grid.(x).(y) with
+          | 'X' ->
+            acc
+            + (all_directions
+               |> List.map (fun dir -> find_xmas grid { l = 'X'; x; y } dir)
+               |> List.fold_left ( + ) 0)
+          | _ -> acc)
        0
 
 let part2 input =
@@ -45,9 +46,9 @@ let part2 input =
   make_indices grid
   |> List.fold_left
        (fun acc (x, y) ->
-         match grid.(x).(y) with
-         | 'A' -> acc + int_of_xmas_match grid x y
-         | _ -> acc)
+          match grid.(x).(y) with
+          | 'A' -> acc + int_of_xmas_match grid x y
+          | _ -> acc)
        0
 
 let get_solution () = part2 (read_file "data/day-4.txt") |> print_int

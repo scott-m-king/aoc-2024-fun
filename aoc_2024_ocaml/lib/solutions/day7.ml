@@ -1,13 +1,14 @@
 open Utils
 
 let parse_input str =
-  str |> String.split_on_char '\n'
+  str
+  |> String.split_on_char '\n'
   |> List.map (fun line -> String.split_on_char ':' line)
   |> List.map (function
-       | target :: nums :: _ ->
-         let value = String.split_on_char ' ' nums |> List.filter_map int_of_string_opt in
-         (int_of_string target, value)
-       | _ -> (0, []))
+    | target :: nums :: _ ->
+      let value = String.split_on_char ' ' nums |> List.filter_map int_of_string_opt in
+      int_of_string target, value
+    | _ -> 0, [])
 
 let rec try_combos acc (target, nums) ops : bool =
   let next =
@@ -15,8 +16,7 @@ let rec try_combos acc (target, nums) ops : bool =
     | x :: xs -> Some (x, xs)
     | _ -> None
   in
-
-  match (acc, next) with
+  match acc, next with
   | x, _ when x > target -> false
   | x, None when x = target -> true
   | x, Some (next_num, rest_nums) ->
