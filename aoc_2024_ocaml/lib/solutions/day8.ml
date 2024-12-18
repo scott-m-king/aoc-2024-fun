@@ -84,9 +84,8 @@ let get_all_next_points grid (x1, y1) (x2, y2) =
   let dx, dy = x2 - x1, y2 - y1 in
   let gcd = find_gcd dx dy in
   let step_x, step_y = dx / gcd, dy / gcd in
-  let first = find_line_points grid (x1, y1) (step_x, step_y) [] in
-  let second = find_line_points grid (x1, y1) (-step_x, -step_y) [] in
-  first @ second
+  find_line_points grid (x1, y1) (step_x, step_y) []
+  @ find_line_points grid (x1, y1) (-step_x, -step_y) []
 
 let part2 input =
   let grid, coords = parse_input input in
