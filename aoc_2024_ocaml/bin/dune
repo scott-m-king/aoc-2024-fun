@@ -2,4 +2,8 @@
  (public_name aoc_2024_ocaml)
  (name main)
  (modules main)
- (libraries aoc_2024_ocaml_lib solutions))
+ (libraries aoc_2024_ocaml_lib solutions)
+ (modes native byte) ; This enables both native and bytecode compilation
+ (flags
+  (:standard -g)) ; This is the key - it adds debug information
+ )

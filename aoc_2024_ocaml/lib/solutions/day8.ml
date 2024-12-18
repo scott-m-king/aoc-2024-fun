@@ -35,30 +35,73 @@ let get_combos positions =
     positions |> List.filteri (fun j _ -> j > i) |> List.map (fun y -> x, y))
   |> List.concat
 
-let get_next_points (x1, y1) (x2, y2) =
+let is_valid_pos grid (x, y) (x1, y1) (x2, y2) =
+  try
+    let within_bounds =
+      match get_cell grid (x, y) with
+      | Some _ -> true
+      | None -> false
+    in
+    let is_valid = x <> x1 && x <> x2 && y <> y1 && y <> y2 in
+    within_bounds && is_valid
+  with
+  | _ -> false
+
+let get_next_points grid (x1, y1) (x2, y2) =
   let dx = x2 - x1 in
   let dy = y2 - y1 in
   [ x1 + dx, y1 + dy; x1 - dx, y1 - dy; x2 + dx, y2 + dy; x2 - dx, y2 - dy ]
-
-let accumulate_points grid =
-  fun key positions acc ->
-  let next_points =
-    get_combos positions
-    |> List.map (fun (pos1, pos2) -> get_next_points pos1 pos2)
-    |> List.flatten
-    |> List.filter (fun pos ->
-      get_cell grid pos
-      |> function
-      | Some { l; _ } when l <> key -> true
-      | _ -> false)
-  in
-  acc @ next_points
+  |> List.filter (fun pos -> is_valid_pos grid pos (x1, y1) (x2, y2))
 
 let part1 input =
   let grid, coords = parse_input input in
-  let positions = AntennaMap.fold (accumulate_points grid) coords [] in
+  let positions =
+    AntennaMap.fold
+      (fun _key positions acc ->
+         let next_points =
+           get_combos positions
+           |> List.map (fun (pos1, pos2) -> get_next_points grid pos1 pos2)
+           |> List.flatten
+         in
+         acc @ next_points)
+      coords
+      []
+  in
   PairSet.of_list positions |> PairSet.cardinal
 
-let part2 _input = 0
+let rec find_gcd a b =
+  match b with
+  | 0 -> a
+  | _ -> find_gcd b (a mod b)
 
-let get_solution () = part1 (read_file "data/day-8.txt") |> print_int
+let rec find_line_points grid (x, y) (step_x, step_y) acc =
+  match get_cell grid (x, y) with
+  | None -> acc
+  | Some _ ->
+    find_line_points grid (x + step_x, y + step_y) (step_x, step_y) ((x, y) :: acc)
+
+let get_all_next_points grid (x1, y1) (x2, y2) =
+  let dx, dy = x2 - x1, y2 - y1 in
+  let gcd = find_gcd dx dy in
+  let step_x, step_y = dx / gcd, dy / gcd in
+  let first = find_line_points grid (x1, y1) (step_x, step_y) [] in
+  let second = find_line_points grid (x1, y1) (-step_x, -step_y) [] in
+  first @ second
+
+let part2 input =
+  let grid, coords = parse_input input in
+  let positions =
+    AntennaMap.fold
+      (fun _key positions acc ->
+         let next_points =
+           get_combos positions
+           |> List.map (fun (pos1, pos2) -> get_all_next_points grid pos1 pos2)
+           |> List.flatten
+         in
+         acc @ next_points)
+      coords
+      []
+  in
+  PairSet.of_list positions |> PairSet.cardinal
+
+let get_solution () = part2 (read_file "data/day-8.txt") |> print_int
