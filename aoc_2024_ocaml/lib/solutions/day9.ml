@@ -73,7 +73,7 @@ let rec solve ctx lst : context =
     solve { start; last = find_second_last last (List.rev lst); result } lst
   | (_, _, x_free), (_, y_size, _) when x_free = 0 && y_size = 0 ->
     { start; last = find_second_last last (List.rev lst); result }
-  | _ -> { start; last; result }
+  | _ -> ctx
 
 let act { last; result; _ } curr lst =
   let init = build_init curr result in
@@ -88,23 +88,18 @@ let lambda ctx curr lst =
     { start; last = -1, -1, -1; result = build_init last result }
   | _ -> act ctx curr lst
 
-(* 24078175412319 too high*)
 let part1 input =
   let lst = parse_input input in
-  let result : context =
-    lst
-    |> List.fold_left
-         (fun ctx curr -> lambda ctx curr lst)
-         { start = List.hd lst; last = last lst; result = [] }
-  in
-  (List.rev result.result
-   |> List.map (fun x -> Int64.of_int x)
-   |> List.fold_left
-        (fun (i, acc) curr -> i + 1, Int64.add acc (Int64.mul (Int64.of_int i) curr))
-        (0, Int64.of_int 0)
-   |> fun (_, x) -> Printf.printf "\n%Ld\n" x) ;
-  0
+  let init = { start = List.hd lst; last = last lst; result = [] } in
+  lst
+  |> List.fold_left (fun ctx curr -> lambda ctx curr lst) init
+  |> (fun x -> List.rev x.result)
+  |> List.map (fun x -> Int64.of_int x)
+  |> List.fold_left
+       (fun (i, acc) curr -> i + 1, Int64.add acc (Int64.mul (Int64.of_int i) curr))
+       (0, Int64.of_int 0)
+  |> fun (_, x) -> x
 
 let part2 _input = 0
 
-let get_solution () = part1 (read_file "data/day-9.txt") |> print_int
+let get_solution () = part1 (read_file "data/day-9-test.txt") |> Printf.printf "\n%Ld\n"
