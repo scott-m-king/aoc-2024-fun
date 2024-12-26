@@ -46,47 +46,39 @@ let rec last = function
 
 let build_init (id, size, _) acc = List.init size (fun _ -> id) |> fun x -> x @ acc
 
-let rec build_acc (x, y) acc =
-  match x, y with
-  | (x_id, x_size, x_free), (y_id, y_size, y_free) when x_free > 0 && y_size > 0 ->
-    build_acc ((x_id, x_size, x_free - 1), (y_id, y_size - 1, y_free)) (y_id :: acc)
-  | _ -> x, y, acc
-
 let sub_free (id, size, free) = id, size, free - 1
 
 let sub_size (id, size, free) = id, size - 1, free
 
-(* requires reverse *)
-let rec find_second_last ((id, size, free) : position) (lst : position list) : position =
-  match lst with
-  | [] | [ _ ] -> id, size, free
-  | (x_id, _, _) :: y :: _ when x_id = id -> y
-  | _ :: xs -> find_second_last (id, size, free) xs
+let find_second_last ((id, _, _) as pos) lst =
+  let rec aux _ = function
+    | [] | [ _ ] -> pos
+    | (x_id, _, _) :: y :: _ when x_id = id -> y
+    | _ :: xs -> aux pos xs
+  in
+  aux pos (List.rev lst)
 
-let rec solve ctx lst : context =
-  let { start; last; result } = ctx in
-  match start, last with
-  | (start_id, _, _), (last_id, _, _) when start_id = last_id -> ctx
-  | (_, _, x_free), (y_id, y_size, _) when x_free > 0 && y_size > 0 ->
-    solve { start = sub_free start; last = sub_size last; result = y_id :: result } lst
-  | (_, _, x_free), (_, y_size, _) when x_free > 0 && y_size = 0 ->
-    solve { start; last = find_second_last last (List.rev lst); result } lst
-  | (_, _, x_free), (_, y_size, _) when x_free = 0 && y_size = 0 ->
-    { start; last = find_second_last last (List.rev lst); result }
+let rec solve ctx lst =
+  let { start = (s_id, _, s_free) as start; last = (l_id, l_size, _) as last; result } =
+    ctx
+  in
+  match s_id = l_id, s_free, l_size with
+  | true, _, _ -> ctx
+  | _, free, size when free > 0 && size > 0 ->
+    solve { start = sub_free start; last = sub_size last; result = l_id :: result } lst
+  | _, free, 0 when free > 0 ->
+    solve { start; last = find_second_last last lst; result } lst
+  | _, 0, 0 -> { ctx with last = find_second_last last lst }
   | _ -> ctx
 
-let act { last; result; _ } curr lst =
-  let init = build_init curr result in
-  solve { start = curr; last; result = init } lst
-
 let lambda ctx curr lst =
-  let { start; last; result } = ctx in
-  match start, last with
-  | _, (id, _, _) when id = -1 -> ctx
-  | (x_id, _, _), (y_id, _, _) when x_id = y_id -> ctx
-  | (x_id, _, _), (y_id, _, _) when x_id = y_id - 1 ->
+  let { start = (s_id, _, _) as start; last = (l_id, _, _) as last; result } = ctx in
+  match l_id = -1, s_id, l_id with
+  | true, _, _ -> ctx
+  | _, x_id, y_id when x_id = y_id -> ctx
+  | _, x_id, y_id when x_id = y_id - 1 ->
     { start; last = -1, -1, -1; result = build_init last result }
-  | _ -> act ctx curr lst
+  | _ -> solve { start = curr; last; result = build_init curr result } lst
 
 let part1 input =
   let lst = parse_input input in
@@ -102,4 +94,4 @@ let part1 input =
 
 let part2 _input = 0
 
-let get_solution () = part1 (read_file "data/day-9-test.txt") |> Printf.printf "\n%Ld\n"
+let get_solution () = part1 (read_file "data/day-9.txt") |> Printf.printf "\n%Ld\n"
