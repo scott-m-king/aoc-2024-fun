@@ -20,13 +20,18 @@ let print_tuple_list lst =
   lst |> List.iter (fun (x, y) -> Format.printf "(%d,%d);@ " x y) ;
   Format.printf "]@]@\n"
 
+let print_triple_list lst =
+  Format.printf "@[<h>[" ;
+  lst |> List.iter (fun (x, y, z) -> Format.printf "(%d,%d,%d);@ " x y z) ;
+  Format.printf "]@]@\n"
+
 let print_int_list_list lst =
   Printf.printf "[\n" ;
   List.iter
     (fun inner_list ->
-       Printf.printf "  [" ;
-       List.iter (fun x -> Printf.printf "%d; " x) inner_list ;
-       Printf.printf "]\n")
+      Printf.printf "  [" ;
+      List.iter (fun x -> Printf.printf "%d; " x) inner_list ;
+      Printf.printf "]\n")
     lst ;
   Printf.printf "]\n"
 
@@ -49,8 +54,8 @@ let print_str_pairs lst =
 let print_char_grid lst =
   Array.iter
     (fun inner_list ->
-       Array.iter (fun c -> Printf.printf "%c" c) inner_list ;
-       Printf.printf "\n")
+      Array.iter (fun c -> Printf.printf "%c" c) inner_list ;
+      Printf.printf "\n")
     lst ;
   Printf.printf "\n"
 
@@ -72,7 +77,7 @@ let print_cell_list_vertical cells =
   print_endline "Corners:" ;
   List.iteri
     (fun i cell ->
-       Printf.printf "  %d: { letter: '%c'; x: %d; y: %d }\n" i cell.l cell.x cell.y)
+      Printf.printf "  %d: { letter: '%c'; x: %d; y: %d }\n" i cell.l cell.x cell.y)
     cells
 
 let make_indices grid =
