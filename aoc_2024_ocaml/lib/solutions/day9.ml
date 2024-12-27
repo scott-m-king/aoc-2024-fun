@@ -24,8 +24,8 @@ let print_context ctx =
 let get_positions lst =
   let rec aux curr acc =
     match curr with
-    | x :: y :: rest -> aux rest ((x, y) :: acc)
     | [ x ] -> (x, 0) :: acc
+    | x :: y :: rest -> aux rest ((x, y) :: acc)
     | _ -> acc
   in
   aux lst []
@@ -59,16 +59,18 @@ let find_second_last ((id, _, _) as pos) lst =
   aux pos (List.rev lst)
 
 let rec solve ctx lst =
-  let { start = (s_id, _, s_free) as start; last = (l_id, l_size, _) as last; result } =
+  let { start = s_id, _, _; last = l_id, _, _; _ } = ctx in
+  if s_id = l_id then ctx else get_next_result ctx lst
+
+and get_next_result ctx lst =
+  let { start = (_, _, s_free) as start; last = (l_id, l_size, _) as last; result } =
     ctx
   in
-  match s_id = l_id, s_free, l_size with
-  | true, _, _ -> ctx
-  | _, free, size when free > 0 && size > 0 ->
+  match s_free, l_size with
+  | free, size when free > 0 && size > 0 ->
     solve { start = sub_free start; last = sub_size last; result = l_id :: result } lst
-  | _, free, 0 when free > 0 ->
-    solve { start; last = find_second_last last lst; result } lst
-  | _, 0, 0 -> { ctx with last = find_second_last last lst }
+  | free, 0 when free > 0 -> solve { start; last = find_second_last last lst; result } lst
+  | 0, 0 -> { ctx with last = find_second_last last lst }
   | _ -> ctx
 
 let lambda ctx curr lst =
@@ -92,6 +94,11 @@ let part1 input =
        (0, Int64.of_int 0)
   |> fun (_, x) -> x
 
-let part2 _input = 0
+let part2 input =
+  let lst = parse_input input in
+  let reversed = List.rev lst in
+  let _init = build_init (List.hd lst) [] in
+  print_triple_list reversed ;
+  Int64.of_int 0
 
 let get_solution () = part1 (read_file "data/day-9.txt") |> Printf.printf "\n%Ld\n"
