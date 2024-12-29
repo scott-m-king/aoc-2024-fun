@@ -103,19 +103,13 @@ let add_to_map k v map =
   map
 
 let find pos lst =
-  lst
-  |> List.filter (fun (id, _, _) ->
-    let x_id, _, _ = pos in
-    x_id > id)
-  |> List.fold_left
-       (fun acc x ->
-         match acc with
-         | Some _ -> acc
-         | None ->
-           (match pos, x with
-            | (_, size, _), (_, _, free) when size <= free -> Some x
-            | _ -> None))
-       None
+  let filtered =
+    lst
+    |> List.filter (fun (id, _, free) ->
+      let x_id, size, _ = pos in
+      x_id > id && size <= free)
+  in
+  List.nth_opt filtered 0
 
 let replace (x_id, x_size, x_free) (y_id, y_size, y_free) lst =
   lst
