@@ -116,7 +116,6 @@ let replace (x_id, x_size, x_free) (y_id, y_size, y_free) lst =
          match x with
          | id, _, _ when x_id = id -> (x_id, x_size, x_free - y_size) :: acc
          | id, _, _ when y_id = id -> (y_id, 0, y_free) :: acc
-         (* | id, _, _ when y_id = id -> acc *)
          | _ -> x :: acc)
        []
   |> List.rev
@@ -178,10 +177,10 @@ let part2 input =
        []
   |> List.rev
   |> List.fold_left
-       (fun (start_idx, final_res) (total_space, positions) ->
+       (fun (start_idx, acc) (total_space, positions) ->
          let next_idx = start_idx + total_space in
-         let block = block_checksum start_idx (total_space, positions) in
-         next_idx, Int64.add final_res block)
+         let checksum = block_checksum start_idx (total_space, positions) in
+         next_idx, Int64.add acc checksum)
        (0, Int64.of_int 0)
   |> fun (_, res) -> res
 
