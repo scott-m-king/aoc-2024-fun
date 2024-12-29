@@ -9,17 +9,10 @@ type context =
   ; result : int list
   }
 
-let print_position (x, y, z) = Printf.printf "(%d,%d,%d)" x y z
-
-let print_context ctx =
-  Printf.printf "{ start = " ;
-  print_position ctx.start ;
-  Printf.printf "; last = " ;
-  print_position ctx.last ;
-  Printf.printf
-    "; result = [%s] }"
-    (String.concat ";" (List.map string_of_int ctx.result)) ;
-  print_char '\n'
+type context2 =
+  { i : int
+  ; pos : position
+  }
 
 let get_positions lst =
   let rec aux curr acc =
@@ -94,11 +87,102 @@ let part1 input =
        (0, Int64.of_int 0)
   |> fun (_, x) -> x
 
+let add_to_map k v map =
+  Hashtbl.find_opt map k
+  |> Option.value ~default:[]
+  |> (fun lst -> v :: lst)
+  |> Hashtbl.replace map k ;
+  map
+
+let find pos lst =
+  lst
+  |> List.filter (fun (id, _, _) ->
+    let x_id, _, _ = pos in
+    x_id > id)
+  |> List.fold_left
+       (fun acc x ->
+         match acc with
+         | Some _ -> acc
+         | None ->
+           (match pos, x with
+            | (_, size, _), (_, _, free) when size <= free -> Some x
+            | _ -> None))
+       None
+
+let replace (x_id, x_size, x_free) (y_id, y_size, y_free) lst =
+  lst
+  |> List.fold_left
+       (fun acc x ->
+         match x with
+         | id, _, _ when x_id = id -> (x_id, x_size, x_free - y_size) :: acc
+         | id, _, _ when y_id = id -> (y_id, 0, y_free) :: acc
+         (* | id, _, _ when y_id = id -> acc *)
+         | _ -> x :: acc)
+       []
+  |> List.rev
+
+let init_map lst =
+  List.fold_left
+    (fun acc (id, _, _) ->
+      Hashtbl.add acc id [] ;
+      acc)
+    (Hashtbl.create (List.length lst))
+    lst
+
+let get_res size id start_idx =
+  List.init size (fun _ -> id)
+  |> List.mapi (fun i x -> start_idx + i, x)
+  |> List.fold_left
+       (fun acc (idx, id) ->
+         Int64.add acc (Int64.mul (Int64.of_int idx) (Int64.of_int id)))
+       (Int64.of_int 0)
+
+let rec block_checksum start_idx (free, positions) =
+  match free with
+  | f when f > 0 ->
+    (match positions with
+     | [ (id, size, _) ] -> get_res size id start_idx
+     | (id, size, _) :: xs ->
+       Int64.add
+         (get_res size id start_idx)
+         (block_checksum (start_idx + size) (free - size, xs))
+     | _ -> Int64.of_int 0)
+  | _ -> Int64.of_int 0
+
+let get_blocks lst =
+  List.rev lst
+  |> List.fold_left
+       (fun (acc, new_list) curr ->
+         let orig_id, _, _ = curr in
+         match find curr new_list with
+         | Some (id, size, free) ->
+           add_to_map id curr acc, replace (id, size, free) curr new_list
+         | None -> add_to_map orig_id curr acc, new_list)
+       (init_map lst, lst)
+  |> fun (res, _) -> res
+
 let part2 input =
   let lst = parse_input input in
-  let reversed = List.rev lst in
-  let _init = build_init (List.hd lst) [] in
-  print_triple_list reversed ;
-  Int64.of_int 0
+  let blocks = get_blocks lst in
+  lst
+  |> List.fold_left
+       (fun acc curr ->
+         let id, size, free = curr in
+         let found = Hashtbl.find blocks id in
+         let blah =
+           match found with
+           | x :: xs when x = curr -> size + free, x :: List.rev xs
+           | xs -> size + free, (0, size, free) :: List.rev xs
+         in
+         blah :: acc)
+       []
+  |> List.rev
+  |> List.fold_left
+       (fun (start_idx, final_res) (total_space, positions) ->
+         let next_idx = start_idx + total_space in
+         let block = block_checksum start_idx (total_space, positions) in
+         next_idx, Int64.add final_res block)
+       (0, Int64.of_int 0)
+  |> fun (_, res) -> res
 
-let get_solution () = part1 (read_file "data/day-9.txt") |> Printf.printf "\n%Ld\n"
+let get_solution () = part2 (read_file "data/day-9.txt") |> Printf.printf "\n%Ld\n"
