@@ -59,6 +59,15 @@ let print_char_grid lst =
     lst ;
   Printf.printf "\n"
 
+let print_int_grid lst =
+  Printf.printf "\n" ;
+  Array.iter
+    (fun inner_list ->
+      Array.iter (fun c -> Printf.printf "%d " c) inner_list ;
+      Printf.printf "\n")
+    lst ;
+  Printf.printf "\n"
+
 module IntSet = Set.Make (Int)
 
 type before = IntSet.t
@@ -71,6 +80,12 @@ type cell =
   { l : char
   ; x : int
   ; y : int
+  }
+
+type int_cell =
+  { i : int
+  ; row : int
+  ; col : int
   }
 
 let print_cell_list_vertical cells =
@@ -95,12 +110,19 @@ let parse_grid_with_indices input =
   let grid = parse_grid input in
   grid, make_indices grid
 
-let get_cell grid (x, y) : cell option =
+let get_cell grid (x, y) =
   try Some { l = grid.(x).(y); x; y } with
+  | Invalid_argument _ -> None
+
+let get_int_cell grid (row, col) =
+  try Some { i = grid.(row).(col); row; col } with
   | Invalid_argument _ -> None
 
 let print_cell (cell : cell) =
   Printf.printf "{letter: %c, x: %d, y: %d}\n" cell.l cell.x cell.y
+
+let print_int_cell (cell : int_cell) =
+  Printf.printf "{letter: %d, row: %d, col: %d}\n" cell.i cell.row cell.col
 
 let rec take n = function
   | first :: rest when n > 0 -> first :: take (n - 1) rest
