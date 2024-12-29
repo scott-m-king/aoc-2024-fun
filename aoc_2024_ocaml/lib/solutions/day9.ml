@@ -87,6 +87,14 @@ let part1 input =
        (0, Int64.of_int 0)
   |> fun (_, x) -> x
 
+let init_map lst =
+  List.fold_left
+    (fun acc (id, _, _) ->
+      Hashtbl.add acc id [] ;
+      acc)
+    (Hashtbl.create (List.length lst))
+    lst
+
 let add_to_map k v map =
   Hashtbl.find_opt map k
   |> Option.value ~default:[]
@@ -120,14 +128,6 @@ let replace (x_id, x_size, x_free) (y_id, y_size, y_free) lst =
        []
   |> List.rev
 
-let init_map lst =
-  List.fold_left
-    (fun acc (id, _, _) ->
-      Hashtbl.add acc id [] ;
-      acc)
-    (Hashtbl.create (List.length lst))
-    lst
-
 let get_res size id start_idx =
   List.init size (fun _ -> id)
   |> List.mapi (fun i x -> start_idx + i, x)
@@ -137,7 +137,8 @@ let get_res size id start_idx =
        (Int64.of_int 0)
 
 let rec block_checksum start_idx (free, positions) =
-  match free with
+  free
+  |> function
   | f when f > 0 ->
     (match positions with
      | [ (id, size, _) ] -> get_res size id start_idx
@@ -167,13 +168,10 @@ let part2 input =
   |> List.fold_left
        (fun acc curr ->
          let id, size, free = curr in
-         let found = Hashtbl.find blocks id in
-         let blah =
-           match found with
-           | x :: xs when x = curr -> size + free, x :: List.rev xs
-           | xs -> size + free, (0, size, free) :: List.rev xs
-         in
-         blah :: acc)
+         (match Hashtbl.find blocks id with
+          | x :: xs when x = curr -> size + free, x :: List.rev xs
+          | xs -> size + free, (0, size, free) :: List.rev xs)
+         :: acc)
        []
   |> List.rev
   |> List.fold_left
