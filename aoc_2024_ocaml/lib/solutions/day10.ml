@@ -15,7 +15,7 @@ let parse_input str =
   |> Array.map (fun row -> row |> Array.map (fun x -> int_of_char x - int_of_char '0'))
   |> fun grid -> grid, make_indices grid
 
-let rec dfs grid (curr_cell : int_cell) (visited : VisitedSet.t) : VisitedSet.t =
+let rec dfs grid curr_cell visited =
   directions
   |> List.fold_left
        (fun acc (row, col) ->
@@ -33,8 +33,8 @@ let part1 input =
   |> fun (grid, indices) ->
   indices
   |> List.fold_left
-       (fun acc x ->
-         match get_int_cell grid x with
+       (fun acc trailhead_start ->
+         match get_int_cell grid trailhead_start with
          | Some cell when cell.value = 0 ->
            acc + VisitedSet.cardinal (dfs grid cell VisitedSet.empty)
          | _ -> acc)
