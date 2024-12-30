@@ -11,11 +11,9 @@ module VisitedSet = Set.Make (CellSet)
 let directions = [ 0, -1; 1, 0; 0, 1; -1, 0 ]
 
 let parse_input str =
-  let grid =
-    parse_grid str
-    |> Array.map (fun row -> row |> Array.map (fun x -> int_of_char x - int_of_char '0'))
-  in
-  grid, make_indices grid
+  parse_grid str
+  |> Array.map (fun row -> row |> Array.map (fun x -> int_of_char x - int_of_char '0'))
+  |> fun grid -> grid, make_indices grid
 
 let rec dfs grid (curr_cell : int_cell) (visited : VisitedSet.t) : VisitedSet.t =
   directions
@@ -31,7 +29,8 @@ let rec dfs grid (curr_cell : int_cell) (visited : VisitedSet.t) : VisitedSet.t 
        visited
 
 let part1 input =
-  let grid, indices = parse_input input in
+  parse_input input
+  |> fun (grid, indices) ->
   indices
   |> List.fold_left
        (fun acc x ->
