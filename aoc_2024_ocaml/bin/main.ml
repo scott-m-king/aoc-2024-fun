@@ -1,1 +1,1 @@
-let () = Solutions.Day10.get_solution ()
+let () = Solutions.Day11.get_solution ()
