@@ -22,9 +22,10 @@ let rec dfs grid curr_cell visited =
          let next_pos = curr_cell.row + row, curr_cell.col + col in
          match get_int_cell grid next_pos with
          | Some next_cell when next_cell.value = curr_cell.value + 1 ->
-           if next_cell.value = 9
-           then VisitedSet.add next_cell acc
-           else dfs grid next_cell acc
+           next_cell.value
+           |> (function
+            | 9 -> VisitedSet.add next_cell acc
+            | _ -> dfs grid next_cell acc)
          | _ -> acc)
        visited
 
@@ -33,10 +34,10 @@ let part1 input =
   |> fun (grid, indices) ->
   indices
   |> List.fold_left
-       (fun acc trailhead_start ->
-         match get_int_cell grid trailhead_start with
-         | Some cell when cell.value = 0 ->
-           acc + VisitedSet.cardinal (dfs grid cell VisitedSet.empty)
+       (fun acc x ->
+         match get_int_cell grid x with
+         | Some trailhead when trailhead.value = 0 ->
+           acc + VisitedSet.cardinal (dfs grid trailhead VisitedSet.empty)
          | _ -> acc)
        0
 
