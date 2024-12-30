@@ -83,7 +83,7 @@ type cell =
   }
 
 type int_cell =
-  { i : int
+  { value : int
   ; row : int
   ; col : int
   }
@@ -115,14 +115,14 @@ let get_cell grid (x, y) =
   | Invalid_argument _ -> None
 
 let get_int_cell grid (row, col) =
-  try Some { i = grid.(row).(col); row; col } with
+  try Some { value = grid.(row).(col); row; col } with
   | Invalid_argument _ -> None
 
 let print_cell (cell : cell) =
   Printf.printf "{letter: %c, x: %d, y: %d}\n" cell.l cell.x cell.y
 
 let print_int_cell (cell : int_cell) =
-  Printf.printf "{letter: %d, row: %d, col: %d}\n" cell.i cell.row cell.col
+  Printf.printf "{letter: %d, row: %d, col: %d}\n" cell.value cell.row cell.col
 
 let rec take n = function
   | first :: rest when n > 0 -> first :: take (n - 1) rest
