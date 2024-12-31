@@ -84,7 +84,7 @@ let part1 input =
   |> List.map (fun x -> Int64.of_int x)
   |> List.fold_left
        (fun (i, acc) curr -> i + 1, Int64.add acc (Int64.mul (Int64.of_int i) curr))
-       (0, Int64.of_int 0)
+       (0, 0L)
   |> fun (_, x) -> x
 
 let init_map lst =
@@ -128,7 +128,7 @@ let get_res size id start_idx =
   |> List.fold_left
        (fun acc (idx, id) ->
          Int64.add acc (Int64.mul (Int64.of_int idx) (Int64.of_int id)))
-       (Int64.of_int 0)
+       0L
 
 let rec block_checksum start_idx (free, positions) =
   free
@@ -140,8 +140,8 @@ let rec block_checksum start_idx (free, positions) =
        Int64.add
          (get_res size id start_idx)
          (block_checksum (start_idx + size) (free - size, xs))
-     | _ -> Int64.of_int 0)
-  | _ -> Int64.of_int 0
+     | _ -> 0L)
+  | _ -> 0L
 
 let get_blocks lst =
   List.rev lst
@@ -173,7 +173,7 @@ let part2 input =
          let next_idx = start_idx + total_space in
          let checksum = block_checksum start_idx (total_space, positions) in
          next_idx, Int64.add acc checksum)
-       (0, Int64.of_int 0)
+       (0, 0L)
   |> fun (_, res) -> res
 
 let get_solution () = part2 (read_file "data/day-9.txt") |> Printf.printf "\n%Ld\n"

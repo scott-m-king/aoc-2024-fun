@@ -15,15 +15,15 @@ let parse_input str =
   |> Array.map (fun row -> row |> Array.map (fun x -> int_of_char x - int_of_char '0'))
   |> fun grid -> grid, make_indices grid
 
-let rec dfs grid curr_cell (func : int_cell -> 'a -> 'a) (start : 'a) : 'a =
+let rec dfs grid curr_cell (f : int_cell -> 'a -> 'a) (start : 'a) : 'a =
   directions
   |> List.fold_left
        (fun acc (row, col) ->
          match get_int_cell grid (curr_cell.row + row, curr_cell.col + col) with
          | Some next_cell when next_cell.value = curr_cell.value + 1 ->
            (match next_cell.value with
-            | 9 -> func next_cell acc
-            | _ -> dfs grid next_cell func acc)
+            | 9 -> f next_cell acc
+            | _ -> dfs grid next_cell f acc)
          | _ -> acc)
        start
 
