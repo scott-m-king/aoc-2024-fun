@@ -35,11 +35,11 @@ let rec solve_memoized cache stone i =
   | _, Some cached -> cached
   | _, None -> solve cache stone i
 
-and solve memo stone i =
+and solve cache stone i =
   blink stone
-  |> List.fold_left (fun acc curr -> acc + solve_memoized memo curr (i - 1)) 0
+  |> List.fold_left (fun acc curr -> acc + solve_memoized cache curr (i - 1)) 0
   |> fun res ->
-  Hashtbl.add memo (i, stone) res ;
+  Hashtbl.add cache (i, stone) res ;
   res
 
 let part2 input =
