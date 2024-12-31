@@ -8,7 +8,7 @@ end
 
 module VisitedSet = Set.Make (CellSet)
 
-let directions = [ 0, -1; 1, 0; 0, 1; -1, 0 ]
+let directions = [ -1, 0 (* up *); 1, 0 (* down *); 0, -1 (* left *); 0, 1 (* right *) ]
 
 let parse_input str =
   parse_grid str
@@ -29,29 +29,23 @@ let rec dfs grid curr_cell (func : int_cell -> 'a -> 'a) (start : 'a) : 'a =
          | _ -> acc)
        start
 
-let part1 input =
-  parse_input input
-  |> fun (grid, indices) ->
+let accumulate f (grid, indices) =
   indices
   |> List.fold_left
        (fun acc x ->
          match get_int_cell grid x with
-         | Some trailhead when trailhead.value = 0 ->
-           let func next_cell visited = VisitedSet.add next_cell visited in
-           acc + VisitedSet.cardinal (dfs grid trailhead func VisitedSet.empty)
+         | Some trailhead when trailhead.value = 0 -> acc + f grid trailhead
          | _ -> acc)
        0
 
+let part1 input =
+  parse_input input
+  |> accumulate (fun grid trailhead ->
+    let f next_cell visited = VisitedSet.add next_cell visited in
+    VisitedSet.cardinal (dfs grid trailhead f VisitedSet.empty))
+
 let part2 input =
   parse_input input
-  |> fun (grid, indices) ->
-  indices
-  |> List.fold_left
-       (fun acc x ->
-         match get_int_cell grid x with
-         | Some trailhead when trailhead.value = 0 ->
-           acc + dfs grid trailhead (fun _ acc -> acc + 1) 0
-         | _ -> acc)
-       0
+  |> accumulate (fun grid trailhead -> dfs grid trailhead (fun _ acc -> acc + 1) 0)
 
 let get_solution () = part2 (read_file "data/day-10.txt") |> print_int
