@@ -135,3 +135,5 @@ let windows n list =
     | first :: rest -> aux (take n (first :: rest) :: acc) rest
   in
   aux [] list
+
+let print_i64 n = Printf.printf " %Ld\n" n

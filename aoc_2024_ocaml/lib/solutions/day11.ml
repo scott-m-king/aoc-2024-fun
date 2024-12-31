@@ -19,18 +19,16 @@ let get_next = function
   | stone -> [ Int64.mul stone (Int64.of_int 2024) ]
 
 let part1 input =
-  let start = parse_input input in
-  let iterations = 6 in
-  let result =
-    List.init iterations (fun x -> x)
-    |> List.fold_left
-         (fun stones_so_far _ ->
-           stones_so_far |> List.fold_left (fun acc y -> acc @ get_next y) [])
-         start
-  in
-  List.iter (fun x -> Printf.printf "%Ld " x) result ;
-  0
+  let iterations = 25 in
+  parse_input input
+  |> fun start ->
+  List.init iterations (fun x -> x)
+  |> List.fold_left
+       (fun stones_so_far _ ->
+         stones_so_far |> List.fold_left (fun acc y -> get_next y @ acc) [])
+       start
+  |> List.length
 
 let part2 _input = 0
 
-let get_solution () = part1 (read_file "data/day-11-test.txt") |> print_int
+let get_solution () = part1 (read_file "data/day-11.txt") |> print_int
