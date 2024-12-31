@@ -32,18 +32,17 @@ let accumulate f (grid, indices) =
   |> List.fold_left
        (fun acc x ->
          match get_int_cell grid x with
-         | Some trailhead when trailhead.value = 0 -> acc + f grid trailhead
+         | Some cell when cell.value = 0 -> acc + f grid cell
          | _ -> acc)
        0
 
 let part1 input =
   parse_input input
-  |> accumulate (fun grid trailhead ->
-    Visited.cardinal
-      (dfs grid trailhead (fun set next -> Visited.add set next) Visited.empty))
+  |> accumulate (fun grid start ->
+    Visited.cardinal (dfs grid start (fun set next -> Visited.add set next) Visited.empty))
 
 let part2 input =
   parse_input input
-  |> accumulate (fun grid trailhead -> dfs grid trailhead (fun _ acc -> acc + 1) 0)
+  |> accumulate (fun grid start -> dfs grid start (fun _ acc -> acc + 1) 0)
 
 let get_solution () = part1 (read_file "data/day-10.txt") |> print_int
