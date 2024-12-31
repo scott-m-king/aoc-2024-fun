@@ -6,7 +6,7 @@ module CellSet = struct
   let compare = compare
 end
 
-module VisitedSet = Set.Make (CellSet)
+module Visited = Set.Make (CellSet)
 
 let directions = [ -1, 0 (* up *); 1, 0 (* down *); 0, -1 (* left *); 0, 1 (* right *) ]
 
@@ -19,11 +19,9 @@ let rec dfs grid curr_cell (func : int_cell -> 'a -> 'a) (start : 'a) : 'a =
   directions
   |> List.fold_left
        (fun acc (row, col) ->
-         let next_pos = curr_cell.row + row, curr_cell.col + col in
-         match get_int_cell grid next_pos with
+         match get_int_cell grid (curr_cell.row + row, curr_cell.col + col) with
          | Some next_cell when next_cell.value = curr_cell.value + 1 ->
-           next_cell.value
-           |> (function
+           (match next_cell.value with
             | 9 -> func next_cell acc
             | _ -> dfs grid next_cell func acc)
          | _ -> acc)
@@ -41,11 +39,11 @@ let accumulate f (grid, indices) =
 let part1 input =
   parse_input input
   |> accumulate (fun grid trailhead ->
-    let f next_cell visited = VisitedSet.add next_cell visited in
-    VisitedSet.cardinal (dfs grid trailhead f VisitedSet.empty))
+    Visited.cardinal
+      (dfs grid trailhead (fun set next -> Visited.add set next) Visited.empty))
 
 let part2 input =
   parse_input input
   |> accumulate (fun grid trailhead -> dfs grid trailhead (fun _ acc -> acc + 1) 0)
 
-let get_solution () = part2 (read_file "data/day-10.txt") |> print_int
+let get_solution () = part1 (read_file "data/day-10.txt") |> print_int
