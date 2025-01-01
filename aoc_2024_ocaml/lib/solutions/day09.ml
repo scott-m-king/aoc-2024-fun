@@ -102,14 +102,8 @@ let add_to_map k v map =
   |> Hashtbl.replace map k ;
   map
 
-let find pos lst =
-  let filtered =
-    lst
-    |> List.filter (fun (id, _, free) ->
-      let x_id, size, _ = pos in
-      x_id > id && size <= free)
-  in
-  List.nth_opt filtered 0
+let find (x_id, x_size, _) lst =
+  lst |> List.find_opt (fun (y_ix, _, y_free) -> x_id > y_ix && x_size <= y_free)
 
 let replace (x_id, x_size, x_free) (y_id, y_size, y_free) lst =
   lst
@@ -156,8 +150,10 @@ let get_blocks lst =
   |> fun (res, _) -> res
 
 let part2 input =
-  let lst = parse_input input in
-  let blocks = get_blocks lst in
+  parse_input input
+  |> fun lst ->
+  (get_blocks lst, lst)
+  |> fun (blocks, lst) ->
   lst
   |> List.fold_left
        (fun acc curr ->

@@ -45,4 +45,4 @@ let part2 input =
   parse_input input
   |> accumulate (fun grid start -> dfs grid start (fun _ acc -> acc + 1) 0)
 
-let get_solution () = part1 (read_file "data/day-10.txt") |> print_int
+let get_solution () = part2 (read_file "data/day-10.txt") |> print_int

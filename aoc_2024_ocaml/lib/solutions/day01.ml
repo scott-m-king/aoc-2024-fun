@@ -18,18 +18,20 @@ let parse_input str =
 let count target list = list |> List.filter (fun x -> x = target) |> List.length
 
 let part1 input =
-  let left, right = parse_input input in
+  parse_input input
+  |> fun (left, right) ->
   List.combine (List.sort compare left) (List.sort compare right)
   |> List.map (fun (x, y) -> abs (x - y))
   |> List.fold_left ( + ) 0
 
 let part2 input =
-  let left, right = parse_input input in
+  parse_input input
+  |> fun (left, right) ->
   left
   |> List.fold_left
        (fun acc curr ->
-          let counts = count curr right in
-          acc + (counts * curr))
+         let counts = count curr right in
+         acc + (counts * curr))
        0
 
 let get_solution () = part2 (read_file "data/day-1.txt") |> print_int
